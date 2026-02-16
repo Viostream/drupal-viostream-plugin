@@ -1,0 +1,22 @@
+field.formatter.settings.viostream_video:
+  type: mapping
+  label: 'Viostream Video formatter settings'
+  mapping:
+    width:
+      type: string
+      label: 'Width'
+    height:
+      type: string
+      label: 'Height'
+    responsive:
+      type: boolean
+      label: 'Responsive'
+    autoplay:
+      type: boolean
+      label: 'Autoplay'
+    muted:
+      type: boolean
+      label: 'Muted'
+    controls:
+      type: boolean
+      label: 'Show controls'

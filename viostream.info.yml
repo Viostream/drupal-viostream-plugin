@@ -1,0 +1,8 @@
+name: 'Viostream'
+type: module
+description: 'Provides a field formatter to embed Viostream videos in Drupal/GovCMS websites.'
+core_version_requirement: ^8 || ^9 || ^10 || ^11
+package: 'Media'
+dependencies:
+  - drupal:field
+  - drupal:link

@@ -1,0 +1,5 @@
+viostream:
+  version: VERSION
+  css:
+    theme:
+      css/viostream.css: {}
