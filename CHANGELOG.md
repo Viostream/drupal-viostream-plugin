@@ -22,9 +22,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive documentation:
   - README with installation and usage guide
   - Quick Start guide
+  - INSTALL.txt file
+  - Drupal help documentation
   - Troubleshooting section
 - Drupal 8, 9, 10, and 11 compatibility
 - GovCMS compatibility
+
+### Security
+- Video ID sanitization to prevent injection attacks
+- Secure URL building using Drupal's Url class
+- Input validation with regex patterns
+- Proper error handling for invalid video IDs
 
 ### Technical Details
 - Implements `FieldFormatterInterface` for field display
@@ -32,5 +40,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Uses Drupal 8+ plugin system
 - Follows Drupal coding standards
 - Includes configuration schema for settings validation
+- Automatic escaping in Twig templates
 
 [1.0.0]: https://github.com/Viostream/govcms-viostream-plugin/releases/tag/v1.0.0
