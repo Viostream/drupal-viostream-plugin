@@ -152,6 +152,11 @@ class ViostreamFormatter extends FormatterBase {
       // Build embed URL.
       $embed_url = $this->buildEmbedUrl($video_id);
 
+      // Skip if URL building failed.
+      if (empty($embed_url)) {
+        continue;
+      }
+
       $elements[$delta] = [
         '#theme' => 'viostream_video',
         '#video_id' => $video_id,
@@ -222,6 +227,13 @@ class ViostreamFormatter extends FormatterBase {
    *   The embed URL.
    */
   protected function buildEmbedUrl($video_id) {
+    // Sanitize the video ID - only allow alphanumeric, hyphens, and underscores.
+    $sanitized_id = preg_replace('/[^a-zA-Z0-9_-]/', '', $video_id);
+    
+    if (empty($sanitized_id)) {
+      return '';
+    }
+
     $params = [];
 
     if ($this->getSetting('autoplay')) {
@@ -236,10 +248,17 @@ class ViostreamFormatter extends FormatterBase {
       $params['controls'] = '0';
     }
 
-    $query = !empty($params) ? '?' . http_build_query($params) : '';
-    
-    // Use Viostream's embed URL format.
-    return "https://play.viostream.com/{$video_id}" . $query;
+    // Build URL using Drupal's Url class for proper URL construction.
+    try {
+      $url = Url::fromUri("https://play.viostream.com/{$sanitized_id}", [
+        'query' => $params,
+      ]);
+      return $url->toString();
+    }
+    catch (\Exception $e) {
+      // If URL building fails, return empty string.
+      return '';
+    }
   }
 
 }
