@@ -1,24 +1,34 @@
 # Viostream for Drupal/GovCMS
 
-A Drupal module that enables you to seamlessly embed Viostream videos in your Drupal or GovCMS website.
+A Drupal module that integrates with the Viostream API to let you browse, search, and embed Viostream videos in your Drupal or GovCMS website.
 
 ## Description
 
-The Viostream module provides a field formatter that allows you to embed Viostream videos directly into your Drupal/GovCMS content. Simply add a Link or Text field to any content type and configure it to use the Viostream Video formatter.
+The Viostream module connects your Drupal site to the Viostream platform via its REST API. Content editors can browse and search their Viostream media library directly from within Drupal, select videos, and embed them into content fields. The module also provides a field formatter for rendering embedded Viostream video players with configurable options.
 
 ## Features
 
-- **Easy Integration**: Works with standard Drupal Link and Text fields
+- **Viostream API Integration**: Full API v3 client connecting to your Viostream account using HTTP Basic Authentication
+- **Admin Connection Settings**: Configuration form to enter API credentials with a Test Connection button
+- **CKEditor 5 Plugin**: Toolbar button to browse and embed Viostream videos inline within rich text content (Drupal 10+)
+- **Media Browser Widget**: Field widget with a modal-based media browser for searching, browsing, and selecting videos
+- **Standalone Media Browser**: A dedicated page for browsing your full Viostream media library
+- **Text Filter**: Converts `<viostream-video>` tags to embedded iframes on display
+- **Field Formatter**: Renders Viostream videos as embedded iframes with configurable player settings
 - **Responsive Design**: Optional responsive video player with 16:9 aspect ratio
 - **Customizable Player**: Configure width, height, autoplay, mute, and controls
-- **Multiple URL Formats**: Supports various Viostream URL formats or direct video IDs
+- **Share Link Support**: Supports share.viostream.com URLs for video embedding
 - **GovCMS Compatible**: Fully compatible with GovCMS distributions
 
 ## Requirements
 
-- Drupal 8, 9, 10, or 11
+- Drupal 10 or 11
 - Field module (core)
+- Filter module (core)
 - Link module (core)
+- System module (core)
+- CKEditor 5 module (core, Drupal 10+ only) - required for the CKEditor toolbar integration
+- A Viostream account with API access (Access Key and API Key from Developer Tools)
 
 ## Installation
 
@@ -36,55 +46,112 @@ composer require viostream/govcms-viostream-plugin
    ```bash
    drush en viostream
    ```
-   Or via the Drupal admin interface: Admin → Extend → Enable "Viostream"
+   Or via the Drupal admin interface: Admin > Extend > Enable "Viostream"
 
-## Usage
+## Configuration
 
-### Setting up a Video Field
+### Step 1: Connect to Viostream API
+
+Before you can browse and select videos, you need to configure your Viostream API credentials:
+
+1. Navigate to **Admin > Configuration > Media > Viostream Settings**
+   (or visit `/admin/config/media/viostream`)
+2. Enter your **Access Key** (starts with `VC-`) from Viostream Developer Tools
+3. Enter your **API Key** from Viostream Developer Tools
+4. Click **Test Connection** to verify your credentials work
+5. Click **Save configuration**
+
+The credentials are stored securely in Drupal configuration. The Test Connection button calls the Viostream Account API to verify the credentials are valid.
+
+### Step 2: Set Up a Video Field
+
+There are three ways to embed Viostream videos in your content:
+
+#### Option A: CKEditor 5 Inline Embed (Recommended for Drupal 10+)
+
+Embed Viostream videos directly within rich text content using the CKEditor 5 toolbar:
+
+1. **Enable the Text Filter**:
+   - Navigate to: Admin > Configuration > Content authoring > Text formats and editors
+   - Edit your text format (e.g., "Full HTML" or "Basic HTML")
+   - Under **Enabled filters**, check **Viostream Video Embed**
+   - Save the text format
+
+2. **Add the Toolbar Button**:
+   - On the same text format configuration page, in the **CKEditor 5 Toolbar** section, drag the **Viostream Video** button into the toolbar
+   - The button shows a video icon and will appear after you enable the filter
+   - Save the text format
+
+3. **Embed Videos in Content**:
+   - Create or edit any content with a rich text field using that text format
+   - Click the **Viostream Video** button in the CKEditor toolbar
+   - A modal opens showing your Viostream media library
+   - Search, sort, and paginate to find the video you want
+   - Click a video to select it, then click **Select Video**
+   - The video appears as a preview widget in the editor
+   - Save your content - the video renders as an embedded player
+
+#### Option B: Media Browser Widget
+
+Use the Viostream Browser widget to let editors browse and select videos visually:
 
 1. **Add a Link Field** to your content type:
-   - Navigate to: Admin → Structure → Content types → [Your content type] → Manage fields
+   - Navigate to: Admin > Structure > Content types > [Your content type] > Manage fields
    - Click "Add field"
    - Select "Link" as the field type
    - Name it (e.g., "Viostream Video")
    - Save the field settings
 
-2. **Configure the Display Format**:
-   - Go to: Admin → Structure → Content types → [Your content type] → Manage display
+2. **Configure the Form Widget**:
+   - Go to: Admin > Structure > Content types > [Your content type] > Manage form display
    - Find your Viostream video field
-   - Change the Format to "Viostream Video"
-   - Click the settings gear icon to configure:
-     - **Width**: Set player width (e.g., 100%, 640px)
-     - **Height**: Set player height in pixels (e.g., 400)
-     - **Responsive**: Enable for responsive 16:9 aspect ratio
-     - **Autoplay**: Auto-start video on page load
-     - **Muted**: Mute video by default
-     - **Show controls**: Display player controls
+   - Change the Widget to **Viostream Browser**
+   - Save
+
+3. **Configure the Display Formatter**:
+   - Go to: Admin > Structure > Content types > [Your content type] > Manage display
+   - Find your Viostream video field
+   - Change the Format to **Viostream Video**
+   - Click the settings gear icon to configure player options (width, height, responsive, autoplay, muted, controls)
    - Save your settings
 
-3. **Add Video Content**:
+4. **Add Video Content**:
    - Create or edit content
-   - In your Viostream video field, enter one of:
-     - Full Viostream URL: `https://play.viostream.com/VIDEO_ID`
-     - Video URL: `https://viostream.com/video/VIDEO_ID`
-     - App URL: `https://app.viostream.com/video/VIDEO_ID`
-     - Just the Video ID: `VIDEO_ID`
+   - Click the **Browse Viostream** button on the video field
+   - A modal opens showing your Viostream media library
+   - Search by title, sort results, and paginate through videos
+   - Click a video to select it
+   - The field is populated with `https://share.viostream.com/{video_key}`
    - Save your content
 
-### Supported URL Formats
+#### Option C: Manual URL Entry
 
-The module recognizes these Viostream URL formats:
-- `https://play.viostream.com/{VIDEO_ID}`
-- `https://viostream.com/video/{VIDEO_ID}`
-- `https://app.viostream.com/video/{VIDEO_ID}`
-- Direct video ID: `{VIDEO_ID}`
+Use the standard Link widget and enter Viostream URLs manually:
+
+1. Add a Link field as described above
+2. Keep the default Link widget in Manage form display
+3. Configure the Viostream Video formatter in Manage display
+4. When creating content, manually enter a `https://share.viostream.com/{VIDEO_ID}` URL
+
+### Standalone Media Browser
+
+A standalone media browser page is available at **Admin > Content > Browse Viostream Media** (or visit `/admin/content/viostream/browse`). This lets administrators browse the full Viostream media library without being in a content editing context.
+
+## Permissions
+
+The module defines two permissions:
+
+| Permission | Description |
+| --- | --- |
+| **Administer Viostream** | Access the Viostream settings form to configure API credentials |
+| **Browse Viostream media** | Access the media browser to search and select videos |
 
 ## Configuration Options
 
 ### Field Formatter Settings
 
 | Setting | Description | Default |
-|---------|-------------|---------|
+| --- | --- | --- |
 | Width | Player width (%, px, or CSS units) | 100% |
 | Height | Player height in pixels | 400 |
 | Responsive | Enable responsive 16:9 aspect ratio | Yes |
@@ -92,18 +159,106 @@ The module recognizes these Viostream URL formats:
 | Muted | Mute video by default | No |
 | Show controls | Display player controls | Yes |
 
+### API Configuration
+
+| Setting | Description |
+| --- | --- |
+| Access Key | Your Viostream Access Key (starts with `VC-`) |
+| API Key | Your Viostream API Key from Developer Tools |
+
+## Supported URL Formats
+
+The field formatter recognizes share.viostream.com URLs:
+
+- `https://share.viostream.com/{VIDEO_ID}`
+- `http://share.viostream.com/{VIDEO_ID}`
+
+## Architecture
+
+### Module Structure
+
+```
+viostream/
+├── viostream.info.yml              # Module metadata and dependencies
+├── viostream.module                # Hook implementations (theme, help)
+├── viostream.ckeditor5.yml         # CKEditor 5 plugin definition
+├── viostream.services.yml          # Service definitions (API client)
+├── viostream.routing.yml           # Route definitions
+├── viostream.links.menu.yml        # Admin menu links
+├── viostream.permissions.yml       # Permission definitions
+├── viostream.libraries.yml         # JS/CSS library definitions
+├── config/
+│   ├── install/
+│   │   └── viostream.settings.yml  # Default configuration
+│   └── schema/
+│       └── viostream.schema.yml    # Configuration schema
+├── src/
+│   ├── Client/
+│   │   └── ViostreamClient.php     # Viostream API v3 client service
+│   ├── Controller/
+│   │   └── ViostreamMediaBrowserController.php  # Media browser endpoints
+│   ├── Form/
+│   │   └── ViostreamSettingsForm.php            # Admin settings form
+│   └── Plugin/
+│       ├── CKEditor5Plugin/
+│       │   └── ViostreamVideo.php               # CKEditor 5 plugin (dynamic config)
+│       ├── Field/
+│       │   ├── FieldFormatter/
+│       │   │   └── ViostreamFormatter.php       # Video embed formatter
+│       │   └── FieldWidget/
+│       │       └── ViostreamBrowserWidget.php   # Media browser widget
+│       └── Filter/
+│           └── ViostreamVideoFilter.php         # Text filter for <viostream-video>
+├── js/
+│   ├── ckeditor5_plugins/
+│   │   └── viostreamVideo/
+│   │       ├── src/                # CKEditor 5 plugin ES module source
+│   │       │   ├── index.js
+│   │       │   ├── viostreamvideo.js
+│   │       │   ├── viostreamvideoediting.js
+│   │       │   ├── viostreamvideoui.js
+│   │       │   ├── insertviostreamvideocommand.js
+│   │       │   └── icon.svg
+│   │       ├── build/
+│   │       │   └── viostreamVideo.js  # Compiled plugin bundle
+│   │       ├── webpack.config.js
+│   │       └── package.json
+│   ├── viostream-browser.js        # Standalone browser page JS
+│   └── viostream-widget.js         # Widget modal browser JS
+├── css/
+│   ├── viostream.css               # Video embed styles
+│   ├── viostream-browser.css       # Media browser / modal styles
+│   ├── viostream-ckeditor.css      # CKEditor 5 widget styles
+│   └── viostream-widget.css        # Field widget styles
+└── templates/
+    ├── viostream-video.html.twig              # Video player template
+    └── viostream-media-browser.html.twig      # Media browser page template
+```
+
+### API Client
+
+The `ViostreamClient` service (`viostream.client`) provides methods for all Viostream API v3 endpoints:
+
+- **Account**: `getAccount()` - retrieve account details (used for connection testing)
+- **Media**: `listMedia()`, `getMedia()`, `ingestMedia()`, `getMediaStatus()` - manage video assets
+- **Channels**: `listChannels()`, `getChannel()`, `getChannelsByIds()` - manage channels
+- **Tags**: `listTags()`, `getTagUsage()` - manage tags
+- **Whitelists**: Full CRUD for whitelists, domains, and media associations
+
 ## Examples
 
 ### Responsive Video (Recommended)
 
 ```
 Field configuration:
+- Widget: Viostream Browser
+- Formatter: Viostream Video
 - Width: 100%
 - Height: 400 (ignored when responsive)
-- Responsive: ✓
-- Autoplay: □
-- Muted: □
-- Show controls: ✓
+- Responsive: Yes
+- Autoplay: No
+- Muted: No
+- Show controls: Yes
 ```
 
 ### Fixed Size Video
@@ -112,10 +267,10 @@ Field configuration:
 Field configuration:
 - Width: 640px
 - Height: 360
-- Responsive: □
-- Autoplay: □
-- Muted: □
-- Show controls: ✓
+- Responsive: No
+- Autoplay: No
+- Muted: No
+- Show controls: Yes
 ```
 
 ### Auto-playing Muted Video
@@ -124,24 +279,46 @@ Field configuration:
 Field configuration:
 - Width: 100%
 - Height: 400
-- Responsive: ✓
-- Autoplay: ✓
-- Muted: ✓
-- Show controls: ✓
+- Responsive: Yes
+- Autoplay: Yes
+- Muted: Yes
+- Show controls: Yes
 ```
 
 ## Troubleshooting
 
+### API Connection Fails
+
+- Verify your Access Key starts with `VC-`
+- Check that your API Key is correct (from Viostream Developer Tools)
+- Ensure your server can reach `https://api.app.viostream.com`
+- Try the Test Connection button on the settings page for diagnostic messages
+
+### Browse Viostream button doesn't appear
+
+- Ensure the field widget is set to **Viostream Browser** (not the default Link widget)
+- Clear Drupal cache: `drush cr`
+- Check that the user has the **Browse Viostream media** permission
+
+### Media browser shows no results
+
+- Verify API credentials are configured at Admin > Configuration > Media > Viostream Settings
+- Test the connection using the Test Connection button
+- Ensure your Viostream account has media assets
+
 ### Video doesn't display
+
 - Verify the video ID or URL is correct
 - Check that the video is accessible and not private
 - Ensure the field is configured to use "Viostream Video" formatter
 
 ### Player controls don't work
+
 - Ensure "Show controls" is enabled in formatter settings
 - Check browser console for JavaScript errors
 
 ### Responsive sizing issues
+
 - Make sure "Responsive" is enabled in formatter settings
 - Verify no conflicting CSS is affecting the video wrapper
 
@@ -157,9 +334,19 @@ phpunit --group viostream
 phpcs --standard=Drupal modules/contrib/viostream
 ```
 
+### Running Locally
+
+```bash
+docker build -t viostream-drupal .
+docker run --rm -p 8080:80 viostream-drupal
+```
+
+See [docker/README.md](docker/README.md) for detailed Docker setup instructions.
+
 ## Support
 
 For issues, questions, or contributions:
+
 - GitHub Issues: https://github.com/Viostream/govcms-viostream-plugin/issues
 - Viostream API Documentation: https://api.app.viostream.com/swagger/index.html
 

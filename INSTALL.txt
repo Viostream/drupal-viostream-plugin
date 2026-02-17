@@ -29,7 +29,7 @@ Key features:
 REQUIREMENTS
 ------------
 This module requires:
- * Drupal 8.9 or higher (compatible with Drupal 9, 10, and 11)
+ * Drupal 10 or 11
  * Field module (Drupal core)
  * Link module (Drupal core)
 
@@ -81,12 +81,14 @@ USAGE
 -----
 After configuration, add videos to your content:
 
-1. Create or edit content with the configured field
-2. Enter a Viostream video URL or ID:
-   - https://play.viostream.com/VIDEO_ID
-   - https://viostream.com/video/VIDEO_ID
-   - https://app.viostream.com/video/VIDEO_ID
-   - VIDEO_ID (direct ID)
+Option A: CKEditor 5 (recommended)
+1. Enable the 'Viostream Video Embed' filter on a text format
+2. Drag the Viostream Video button into the CKEditor toolbar
+3. Edit content, click the Viostream button, browse and select a video
+
+Option B: Field widget
+1. Create or edit content with a Viostream Browser widget field
+2. Click 'Browse Viostream' to search and select a video
 3. Save and view your content
 
 The video will be embedded using your configured settings.

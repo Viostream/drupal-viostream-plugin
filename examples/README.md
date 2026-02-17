@@ -2,7 +2,51 @@
 
 This directory contains examples of how to use the Viostream module in various scenarios.
 
-## Example 1: Basic Video Embedding
+## Example 1: Media Browser Widget (Recommended)
+
+**Content Type:** Article
+**Field Type:** Link
+**Field Name:** field_viostream_video
+
+### Setup
+
+1. Add a Link field to the Article content type:
+   - Field Label: "Viostream Video"
+   - Machine name: field_viostream_video
+   - Allowed number of values: 1
+
+2. Configure the form widget (Manage form display):
+   - Widget: **Viostream Browser**
+
+3. Configure the display (Manage display):
+   - Formatter: Viostream Video
+   - Width: 100%
+   - Height: 400
+   - Responsive: Yes
+   - Autoplay: No
+   - Muted: No
+   - Show controls: Yes
+
+### Prerequisites
+
+API credentials must be configured at **Admin > Configuration > Media > Viostream Settings** before the media browser will work.
+
+### Usage
+
+When creating an article:
+1. Click the **Browse Viostream** button
+2. A modal opens showing your Viostream media library
+3. Search for a video by title
+4. Click a video thumbnail to select it
+5. The field is populated with the video's share URL
+
+### Result
+
+The video will be displayed as a responsive iframe with 16:9 aspect ratio, and editors get a visual media browser instead of manually entering URLs.
+
+---
+
+## Example 2: Basic Video Embedding (Manual URL)
 
 **Content Type:** Article
 **Field Type:** Link
@@ -26,9 +70,9 @@ This directory contains examples of how to use the Viostream module in various s
 
 ### Usage
 
-When creating an article, enter one of these in the video field:
+When creating an article, enter a share URL in the video field:
 ```
-https://play.viostream.com/abc123xyz
+https://share.viostream.com/abc123xyz
 ```
 
 ### Result
@@ -37,7 +81,7 @@ The video will be displayed as a responsive iframe with 16:9 aspect ratio.
 
 ---
 
-## Example 2: Auto-playing Background Video
+## Example 3: Auto-playing Background Video
 
 **Content Type:** Landing Page
 **Field Type:** Link
@@ -46,7 +90,9 @@ The video will be displayed as a responsive iframe with 16:9 aspect ratio.
 ### Configuration
 
 1. Add a Link field to the Landing Page content type
-2. Configure the display:
+2. Configure the form widget:
+   - Widget: **Viostream Browser** (or default Link widget for manual entry)
+3. Configure the display:
    - Formatter: Viostream Video
    - Width: 100%
    - Height: 600
@@ -57,8 +103,9 @@ The video will be displayed as a responsive iframe with 16:9 aspect ratio.
 
 ### Usage
 
+Select a video via the media browser, or enter manually:
 ```
-https://viostream.com/video/def456uvw
+https://share.viostream.com/def456uvw
 ```
 
 ### Result
@@ -67,7 +114,7 @@ The video auto-plays on page load, muted, without controls - perfect for hero/ba
 
 ---
 
-## Example 3: Multiple Videos (Gallery)
+## Example 4: Multiple Videos (Gallery)
 
 **Content Type:** Video Gallery
 **Field Type:** Link
@@ -77,7 +124,9 @@ The video auto-plays on page load, muted, without controls - perfect for hero/ba
 ### Configuration
 
 1. Add a Link field with unlimited values
-2. Configure the display:
+2. Configure the form widget:
+   - Widget: **Viostream Browser**
+3. Configure the display:
    - Formatter: Viostream Video
    - Width: 100%
    - Height: 300
@@ -88,12 +137,7 @@ The video auto-plays on page load, muted, without controls - perfect for hero/ba
 
 ### Usage
 
-Add multiple video IDs or URLs:
-```
-ghi789rst
-https://play.viostream.com/jkl012mno
-https://app.viostream.com/video/pqr345stu
-```
+Click **Browse Viostream** for each field slot to select multiple videos. Each field instance gets its own Browse button.
 
 ### Result
 
@@ -101,7 +145,7 @@ Multiple videos displayed in a gallery format, each with its own player.
 
 ---
 
-## Example 4: Using with Paragraphs
+## Example 5: Using with Paragraphs
 
 **Paragraph Type:** Video Section
 **Field Type:** Link
@@ -114,7 +158,9 @@ Multiple videos displayed in a gallery format, each with its own player.
    - field_title (Text)
    - field_description (Text Long)
    - field_paragraph_video (Link)
-3. Configure display for field_paragraph_video:
+3. Configure form display for field_paragraph_video:
+   - Widget: **Viostream Browser**
+4. Configure display for field_paragraph_video:
    - Formatter: Viostream Video
    - Responsive: Yes
 
@@ -123,7 +169,7 @@ Multiple videos displayed in a gallery format, each with its own player.
 Add the paragraph to a page and fill in:
 - Title: "Product Demo"
 - Description: "Watch our product in action"
-- Video: `https://play.viostream.com/vwx678yzabc`
+- Video: Click **Browse Viostream** and select a video
 
 ### Result
 
@@ -131,7 +177,7 @@ Structured content with video, title, and description in a reusable component.
 
 ---
 
-## Example 5: Fixed-Size Video
+## Example 6: Fixed-Size Video
 
 **Content Type:** Blog Post
 **Field Type:** String
@@ -151,9 +197,9 @@ Structured content with video, title, and description in a reusable component.
 
 ### Usage
 
-Enter just the video ID:
+Enter a share URL:
 ```
-bcd890efg
+https://share.viostream.com/bcd890efg
 ```
 
 ### Result
@@ -162,7 +208,7 @@ Fixed-size video player at 640x360px.
 
 ---
 
-## Example 6: Custom Theming
+## Example 7: Custom Theming
 
 **Override template in your theme:**
 
@@ -198,7 +244,7 @@ drush cr
 
 ---
 
-## Example 7: Programmatic Video Embedding
+## Example 8: Programmatic Video Embedding
 
 **In a custom module or theme:**
 
@@ -208,7 +254,7 @@ use Drupal\Core\Url;
 
 // In a controller or template preprocess function
 $video_id = 'hij123klm';
-$embed_url = Url::fromUri("https://play.viostream.com/{$video_id}", [
+$embed_url = Url::fromUri("https://share.viostream.com/{$video_id}", [
   'query' => [
     'autoplay' => '1',
     'muted' => '1',
@@ -232,11 +278,40 @@ return $build;
 
 ---
 
-## Example 8: Media Entity Integration
+## Example 9: Programmatic API Client Usage
+
+**Using the Viostream API client in custom code:**
+
+```php
+<?php
+
+// Get the API client service.
+$client = \Drupal::service('viostream.client');
+
+// List media with search and pagination.
+$results = $client->listMedia([
+  'search' => 'product demo',
+  'limit' => 10,
+  'offset' => 0,
+]);
+
+// Get details for a specific media item.
+$media = $client->getMedia('media-key-here');
+
+// List channels.
+$channels = $client->listChannels();
+
+// Test the connection (returns account info).
+$account = $client->getAccount();
+```
+
+---
+
+## Example 10: Media Entity Integration
 
 **Create a custom Media Source for Viostream:**
 
-While the field formatter works great for simple use cases, for advanced media management you can create a custom Media Source plugin that integrates with Drupal's Media module.
+While the field formatter and media browser widget work great for most use cases, for advanced media management you can create a custom Media Source plugin that integrates with Drupal's Media module.
 
 This allows you to:
 - Store videos in the Media library
@@ -250,12 +325,14 @@ This allows you to:
 
 ## Tips
 
-1. **Always test video IDs** before publishing content
-2. **Use responsive mode** for mobile-friendly videos
-3. **Enable muted with autoplay** (browser requirement)
-4. **Consider performance** with multiple videos on one page
-5. **Use appropriate dimensions** for your theme layout
-6. **Test across browsers** for autoplay compatibility
+1. **Configure API credentials first** before using the media browser widget
+2. **Use the Viostream Browser widget** for the best editorial experience
+3. **Always test video IDs** before publishing content
+4. **Use responsive mode** for mobile-friendly videos
+5. **Enable muted with autoplay** (browser requirement)
+6. **Consider performance** with multiple videos on one page
+7. **Use appropriate dimensions** for your theme layout
+8. **Test across browsers** for autoplay compatibility
 
 ## Need Help?
 
