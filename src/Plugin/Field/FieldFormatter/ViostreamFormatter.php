@@ -2,10 +2,13 @@
 
 namespace Drupal\viostream\Plugin\Field\FieldFormatter;
 
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
+use Drupal\viostream\Client\ViostreamClient;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin implementation of the 'viostream_video' formatter.
@@ -21,6 +24,63 @@ use Drupal\Core\Url;
  * )
  */
 class ViostreamFormatter extends FormatterBase {
+
+  /**
+   * The Viostream API client.
+   *
+   * @var \Drupal\viostream\Client\ViostreamClient
+   */
+  protected $viostreamClient;
+
+  /**
+   * Constructs a ViostreamFormatter object.
+   *
+   * @param string $plugin_id
+   *   The plugin ID.
+   * @param mixed $plugin_definition
+   *   The plugin definition.
+   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+   *   The field definition.
+   * @param array $settings
+   *   The formatter settings.
+   * @param string $label
+   *   The formatter label display setting.
+   * @param string $view_mode
+   *   The view mode.
+   * @param array $third_party_settings
+   *   Third party settings.
+   * @param \Drupal\viostream\Client\ViostreamClient $viostream_client
+   *   The Viostream API client.
+   */
+  public function __construct(
+    $plugin_id,
+    $plugin_definition,
+    FieldDefinitionInterface $field_definition,
+    array $settings,
+    $label,
+    $view_mode,
+    array $third_party_settings,
+    ViostreamClient $viostream_client
+  ) {
+    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
+    $this->viostreamClient = $viostream_client;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $plugin_id,
+      $plugin_definition,
+      $configuration['field_definition'],
+      $configuration['settings'],
+      $configuration['label'],
+      $configuration['view_mode'],
+      $configuration['third_party_settings'],
+      $container->get('viostream.client')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -62,7 +122,7 @@ class ViostreamFormatter extends FormatterBase {
       '#type' => 'checkbox',
       '#title' => $this->t('Responsive'),
       '#default_value' => $this->getSetting('responsive'),
-      '#description' => $this->t('Make the video player responsive (16:9 aspect ratio).'),
+      '#description' => $this->t('Make the video player responsive, preserving the native aspect ratio of each video.'),
     ];
 
     $elements['autoplay'] = [
@@ -129,7 +189,7 @@ class ViostreamFormatter extends FormatterBase {
 
     foreach ($items as $delta => $item) {
       $video_url = NULL;
-      
+
       // Handle different field types.
       if ($item->getFieldDefinition()->getType() === 'link') {
         $video_url = $item->uri;
@@ -144,7 +204,7 @@ class ViostreamFormatter extends FormatterBase {
 
       // Extract video ID from Viostream URL.
       $video_id = $this->extractVideoId($video_url);
-      
+
       if (!$video_id) {
         continue;
       }
@@ -167,6 +227,7 @@ class ViostreamFormatter extends FormatterBase {
         '#controls' => $this->getSetting('controls'),
         '#responsive' => $this->getSetting('responsive'),
         '#embed_url' => $embed_url,
+        '#aspect_ratio' => $this->getAspectRatio($video_id),
         '#attached' => [
           'library' => ['viostream/viostream'],
         ],
@@ -189,29 +250,13 @@ class ViostreamFormatter extends FormatterBase {
    *   The video ID or NULL if not found.
    */
   protected function extractVideoId($url) {
-    // Support various Viostream URL formats:
-    // - https://viostream.com/video/{id}
-    // - https://play.viostream.com/{id}
-    // - https://app.viostream.com/video/{id}
-    // - Just the ID itself
-    
-    // If it's already just an ID (alphanumeric), return it.
-    if (preg_match('/^[a-zA-Z0-9_-]+$/', $url)) {
-      return $url;
-    }
+    // Only support share.viostream.com URLs:
+    // - https://share.viostream.com/{id}
+    // - http://share.viostream.com/{id}
 
-    // Parse various URL patterns.
-    $patterns = [
-      '/viostream\.com\/video\/([a-zA-Z0-9_-]+)/',
-      '/play\.viostream\.com\/([a-zA-Z0-9_-]+)/',
-      '/app\.viostream\.com\/video\/([a-zA-Z0-9_-]+)/',
-      '/viostream\.com\/.*[?&]v=([a-zA-Z0-9_-]+)/',
-    ];
-
-    foreach ($patterns as $pattern) {
-      if (preg_match($pattern, $url, $matches)) {
-        return $matches[1];
-      }
+    // Parse share.viostream.com URL pattern.
+    if (preg_match('/https?:\/\/share\.viostream\.com\/([a-zA-Z0-9_-]+)(?:\/|\?|$)/', $url, $matches)) {
+      return $matches[1];
     }
 
     return NULL;
@@ -229,7 +274,7 @@ class ViostreamFormatter extends FormatterBase {
   protected function buildEmbedUrl($video_id) {
     // Sanitize the video ID - only allow alphanumeric, hyphens, and underscores.
     $sanitized_id = preg_replace('/[^a-zA-Z0-9_-]/', '', $video_id);
-    
+
     if (empty($sanitized_id)) {
       return '';
     }
@@ -248,9 +293,9 @@ class ViostreamFormatter extends FormatterBase {
       $params['controls'] = '0';
     }
 
-    // Build URL using Drupal's Url class for proper URL construction.
+    // Build embed URL for share.viostream.com using Drupal's Url class.
     try {
-      $url = Url::fromUri("https://play.viostream.com/{$sanitized_id}", [
+      $url = Url::fromUri("https://share.viostream.com/{$sanitized_id}", [
         'query' => $params,
       ]);
       return $url->toString();
@@ -259,6 +304,51 @@ class ViostreamFormatter extends FormatterBase {
       // If URL building fails, return empty string.
       return '';
     }
+  }
+
+  /**
+   * Gets the aspect ratio string for a video from the Viostream API.
+   *
+   * Returns a "width / height" CSS aspect-ratio value (e.g. "16 / 9"),
+   * or NULL if dimensions cannot be determined.
+   *
+   * @param string $video_id
+   *   The video public key.
+   *
+   * @return string|null
+   *   The CSS aspect-ratio value, or NULL.
+   */
+  protected function getAspectRatio($video_id) {
+    if (!$this->viostreamClient->isConfigured()) {
+      return NULL;
+    }
+
+    $detail = $this->viostreamClient->getMediaDetail($video_id);
+    if (empty($detail)) {
+      return NULL;
+    }
+
+    // Try download dimensions first.
+    if (!empty($detail['download']['width']) && !empty($detail['download']['height'])) {
+      return (int) $detail['download']['width'] . ' / ' . (int) $detail['download']['height'];
+    }
+
+    // Fall back to the highest-resolution progressive stream.
+    if (!empty($detail['progressive'])) {
+      $best = NULL;
+      foreach ($detail['progressive'] as $stream) {
+        if (!empty($stream['width']) && !empty($stream['height'])) {
+          if ($best === NULL || $stream['width'] > $best['width']) {
+            $best = $stream;
+          }
+        }
+      }
+      if ($best) {
+        return (int) $best['width'] . ' / ' . (int) $best['height'];
+      }
+    }
+
+    return NULL;
   }
 
 }

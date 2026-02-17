@@ -12,12 +12,13 @@
  * - muted: Whether the video is muted.
  * - controls: Whether to show player controls.
  * - responsive: Whether to make the player responsive.
+ * - aspect_ratio: CSS aspect-ratio value (e.g. "16 / 9"), or null.
  *
  * @ingroup themeable
  */
 #}
 {% if responsive %}
-<div class="viostream-video-wrapper viostream-responsive">
+<div class="viostream-video-wrapper viostream-responsive"{% if aspect_ratio %} style="aspect-ratio: {{ aspect_ratio }};"{% endif %}>
   <iframe
     src="{{ embed_url }}"
     class="viostream-video-iframe"
