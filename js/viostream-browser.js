@@ -21,6 +21,8 @@
       var resultCount = browser.querySelector('.viostream-result-count');
       var loading = browser.querySelector('.viostream-loading');
       var currentPage = 1;
+      var searchTimer = null;
+      var searchDelay = 300;
 
       function showLoading() {
         if (loading) loading.style.display = '';
@@ -172,11 +174,20 @@
         searchBtn.addEventListener('click', function () { doSearch(1); });
       }
       if (searchInput) {
+        // Immediate search on Enter.
         searchInput.addEventListener('keydown', function (e) {
           if (e.key === 'Enter') {
             e.preventDefault();
+            clearTimeout(searchTimer);
             doSearch(1);
           }
+        });
+        // Debounced search-as-you-type.
+        searchInput.addEventListener('input', function () {
+          clearTimeout(searchTimer);
+          searchTimer = setTimeout(function () {
+            doSearch(1);
+          }, searchDelay);
         });
       }
       if (sortSelect) {

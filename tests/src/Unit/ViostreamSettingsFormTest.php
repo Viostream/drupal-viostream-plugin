@@ -401,7 +401,7 @@ class ViostreamSettingsFormTest extends TestCase {
     $this->assertArrayHasKey('status', $result);
     $this->assertStringContainsString('messages--status', $result['status']['#markup']);
     $this->assertStringContainsString('My Account', $result['status']['#markup']);
-    $this->assertStringContainsString('acc-1', $result['status']['#markup']);
+    $this->assertStringNotContainsString('acc-1', $result['status']['#markup']);
   }
 
   /**

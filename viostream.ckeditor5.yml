@@ -10,6 +10,7 @@ viostream_video:
     toolbar_items:
       viostreamVideo:
         label: Viostream Video
+        icon: viostreamVideo
     elements:
       - <viostream-video>
       - <viostream-video data-video-key data-video-title data-video-width data-video-height>

@@ -169,9 +169,8 @@ class ViostreamSettingsForm extends ConfigFormBase {
         $container['status'] = [
           '#type' => 'markup',
           '#markup' => '<div class="messages messages--status">'
-            . $this->t('Connection successful! Account: <strong>@title</strong> (ID: @id)', [
+            . $this->t('Connection successful! Account: <strong>@title</strong>', [
               '@title' => $data['title'] ?? $this->t('Unknown'),
-              '@id' => $data['id'] ?? $this->t('Unknown'),
             ])
             . '</div>',
         ];
