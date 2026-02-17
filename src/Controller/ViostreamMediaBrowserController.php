@@ -116,9 +116,11 @@ class ViostreamMediaBrowserController extends ControllerBase {
       $sort_order = 'desc';
     }
 
+    $page_number = max((int) $request->query->get('page', 1), 1);
+
     $params = [
       'PageSize' => $page_size,
-      'PageNumber' => (int) $request->query->get('page', 1),
+      'PageNumber' => $page_number,
       'SortColumn' => $sort_column,
       'SortOrder' => $sort_order,
     ];
@@ -136,8 +138,14 @@ class ViostreamMediaBrowserController extends ControllerBase {
 
     $list_result = $result['listResult'] ?? [];
 
+    // Filter each item to only include fields needed by the browser JS.
+    $allowed_item_fields = ['id', 'key', 'title', 'description', 'thumbnail', 'status', 'duration', 'totalViews'];
+    $items = array_map(function (array $item) use ($allowed_item_fields) {
+      return array_intersect_key($item, array_flip($allowed_item_fields));
+    }, $list_result['items'] ?? []);
+
     return new JsonResponse([
-      'items' => $list_result['items'] ?? [],
+      'items' => $items,
       'totalItems' => $list_result['totalItems'] ?? 0,
       'totalPages' => $list_result['totalPages'] ?? 0,
       'pageNumber' => $list_result['pageNumber'] ?? 1,

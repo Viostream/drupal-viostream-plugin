@@ -164,6 +164,79 @@ class ViostreamMediaBrowserControllerTest extends TestCase {
   }
 
   /**
+   * @covers ::search
+   */
+  public function testSearchPageNumberMinimumIsOne(): void {
+    $this->viostreamClient->method('isConfigured')->willReturn(TRUE);
+    $this->viostreamClient->expects($this->once())
+      ->method('listMedia')
+      ->with($this->callback(function (array $params) {
+        return $params['PageNumber'] === 1;
+      }))
+      ->willReturn([
+        'listResult' => [
+          'items' => [],
+          'totalItems' => 0,
+          'totalPages' => 0,
+          'pageNumber' => 1,
+          'pageSize' => 24,
+        ],
+      ]);
+
+    $request = new Request(['page' => '-3']);
+    $response = $this->controller->search($request);
+
+    $this->assertSame(200, $response->getStatusCode());
+  }
+
+  /**
+   * @covers ::search
+   */
+  public function testSearchResponseItemsContainOnlyWhitelistedFields(): void {
+    $this->viostreamClient->method('isConfigured')->willReturn(TRUE);
+    $this->viostreamClient->method('listMedia')->willReturn([
+      'listResult' => [
+        'items' => [
+          [
+            'id' => 'media-1',
+            'key' => 'abc123',
+            'title' => 'Test Video',
+            'description' => 'A video',
+            'thumbnail' => 'https://example.com/thumb.jpg',
+            'status' => 'active',
+            'duration' => '2:30',
+            'totalViews' => 42,
+            'internalId' => 'secret-internal-id',
+            'owner' => 'admin@example.com',
+            'uploadUrl' => 'https://secret.com/upload',
+          ],
+        ],
+        'totalItems' => 1,
+        'totalPages' => 1,
+        'pageNumber' => 1,
+        'pageSize' => 24,
+      ],
+    ]);
+
+    $request = new Request();
+    $response = $this->controller->search($request);
+
+    $this->assertSame(200, $response->getStatusCode());
+    $data = json_decode($response->getContent(), TRUE);
+    $this->assertCount(1, $data['items']);
+
+    $item = $data['items'][0];
+    // Whitelisted fields are present.
+    $expected_keys = ['id', 'key', 'title', 'description', 'thumbnail', 'status', 'duration', 'totalViews'];
+    $this->assertSame($expected_keys, array_keys($item));
+
+    // Non-whitelisted fields are absent.
+    $this->assertArrayNotHasKey('internalId', $item);
+    $this->assertArrayNotHasKey('owner', $item);
+    $this->assertArrayNotHasKey('uploadUrl', $item);
+  }
+
+  /**
    * @covers ::detail
    */
   public function testDetailNotConfigured(): void {
