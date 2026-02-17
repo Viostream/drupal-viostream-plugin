@@ -286,6 +286,145 @@ class ViostreamMediaBrowserControllerTest extends TestCase {
   }
 
   /**
+   * @covers ::search
+   */
+  public function testSearchInvalidSortColumnFallsBackToDefault(): void {
+    $this->viostreamClient->method('isConfigured')->willReturn(TRUE);
+    $this->viostreamClient->expects($this->once())
+      ->method('listMedia')
+      ->with($this->callback(function (array $params) {
+        return $params['SortColumn'] === 'CreatedDate';
+      }))
+      ->willReturn([
+        'listResult' => [
+          'items' => [],
+          'totalItems' => 0,
+          'totalPages' => 0,
+          'pageNumber' => 1,
+          'pageSize' => 24,
+        ],
+      ]);
+
+    $request = new Request(['sort' => 'MaliciousColumn']);
+    $response = $this->controller->search($request);
+
+    $this->assertSame(200, $response->getStatusCode());
+  }
+
+  /**
+   * @covers ::search
+   */
+  public function testSearchInvalidSortOrderFallsBackToDefault(): void {
+    $this->viostreamClient->method('isConfigured')->willReturn(TRUE);
+    $this->viostreamClient->expects($this->once())
+      ->method('listMedia')
+      ->with($this->callback(function (array $params) {
+        return $params['SortOrder'] === 'desc';
+      }))
+      ->willReturn([
+        'listResult' => [
+          'items' => [],
+          'totalItems' => 0,
+          'totalPages' => 0,
+          'pageNumber' => 1,
+          'pageSize' => 24,
+        ],
+      ]);
+
+    $request = new Request(['order' => 'DROP TABLE']);
+    $response = $this->controller->search($request);
+
+    $this->assertSame(200, $response->getStatusCode());
+  }
+
+  /**
+   * @covers ::search
+   */
+  public function testSearchPageSizeCappedAt100(): void {
+    $this->viostreamClient->method('isConfigured')->willReturn(TRUE);
+    $this->viostreamClient->expects($this->once())
+      ->method('listMedia')
+      ->with($this->callback(function (array $params) {
+        return $params['PageSize'] === 100;
+      }))
+      ->willReturn([
+        'listResult' => [
+          'items' => [],
+          'totalItems' => 0,
+          'totalPages' => 0,
+          'pageNumber' => 1,
+          'pageSize' => 100,
+        ],
+      ]);
+
+    $request = new Request(['page_size' => '9999']);
+    $response = $this->controller->search($request);
+
+    $this->assertSame(200, $response->getStatusCode());
+  }
+
+  /**
+   * @covers ::search
+   */
+  public function testSearchPageSizeMinimumIsOne(): void {
+    $this->viostreamClient->method('isConfigured')->willReturn(TRUE);
+    $this->viostreamClient->expects($this->once())
+      ->method('listMedia')
+      ->with($this->callback(function (array $params) {
+        return $params['PageSize'] === 1;
+      }))
+      ->willReturn([
+        'listResult' => [
+          'items' => [],
+          'totalItems' => 0,
+          'totalPages' => 0,
+          'pageNumber' => 1,
+          'pageSize' => 1,
+        ],
+      ]);
+
+    $request = new Request(['page_size' => '-5']);
+    $response = $this->controller->search($request);
+
+    $this->assertSame(200, $response->getStatusCode());
+  }
+
+  /**
+   * @covers ::detail
+   */
+  public function testDetailResponseContainsOnlyWhitelistedFields(): void {
+    $this->viostreamClient->method('isConfigured')->willReturn(TRUE);
+    $this->viostreamClient->method('getMediaDetail')->willReturn([
+      'id' => 'media-wl',
+      'key' => 'abc123',
+      'title' => 'My Video',
+      'description' => 'A test video',
+      'thumbnail' => 'https://example.com/thumb.jpg',
+      'status' => 'active',
+      'duration' => 120,
+      'download' => ['width' => 1920, 'height' => 1080, 'url' => 'https://secret.com/download'],
+      'progressive' => [['width' => 640, 'height' => 360]],
+      'internalField' => 'should-not-appear',
+      'owner' => 'admin@example.com',
+    ]);
+
+    $response = $this->controller->detail('media-wl');
+
+    $this->assertSame(200, $response->getStatusCode());
+    $data = json_decode($response->getContent(), TRUE);
+
+    // Whitelisted fields are present.
+    $expected_keys = ['id', 'key', 'title', 'description', 'thumbnail', 'status', 'duration', 'videoWidth', 'videoHeight'];
+    $this->assertSame($expected_keys, array_keys($data));
+
+    // Non-whitelisted fields are absent.
+    $this->assertArrayNotHasKey('download', $data);
+    $this->assertArrayNotHasKey('progressive', $data);
+    $this->assertArrayNotHasKey('internalField', $data);
+    $this->assertArrayNotHasKey('owner', $data);
+  }
+
+  /**
    * @covers ::__construct
    */
   public function testConstructor(): void {

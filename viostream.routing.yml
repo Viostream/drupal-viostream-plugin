@@ -29,5 +29,6 @@ viostream.media_browser.detail:
     _controller: '\Drupal\viostream\Controller\ViostreamMediaBrowserController::detail'
   requirements:
     _permission: 'browse viostream media'
+    media_id: '[a-zA-Z0-9_-]+'
   options:
     no_cache: TRUE

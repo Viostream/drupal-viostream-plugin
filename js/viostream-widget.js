@@ -270,7 +270,7 @@
     var valueInput = widget.querySelector('.viostream-selected-value');
     if (valueInput) {
       // Store the share URL as the field value.
-      valueInput.value = 'https://share.viostream.com/' + item.key;
+      valueInput.value = 'https://share.viostream.com/' + encodeURIComponent(item.key);
       // Trigger change so Drupal knows the value changed.
       valueInput.dispatchEvent(new Event('change', { bubbles: true }));
     }

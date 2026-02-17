@@ -266,8 +266,8 @@ class ViostreamBrowserWidgetTest extends TestCase {
     // Preview should show title content but no thumbnail.
     $this->assertArrayHasKey('content', $element['preview']);
     $context = $element['preview']['content']['#context'] ?? [];
-    $this->assertStringContainsString('Audio Track', $context['content'] ?? '');
-    $this->assertStringNotContainsString('<img', $context['content'] ?? '');
+    $this->assertSame('Audio Track', $context['title'] ?? '');
+    $this->assertArrayNotHasKey('thumbnail', $context);
   }
 
   /**

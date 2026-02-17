@@ -114,6 +114,35 @@ Solution:
   - Enable both "Autoplay" and "Muted" (required by browsers)
   - Check browser autoplay policies
 
+
+SECURITY — PRODUCTION CREDENTIAL MANAGEMENT
+--------------------------------------------
+By default, API credentials are stored in Drupal's configuration system. This
+means they will appear in config exports (drush config:export) and database
+dumps. For production environments — especially GovCMS — you should override
+credentials via environment variables rather than storing them in exportable
+config.
+
+Add the following to your settings.php (or settings.local.php):
+
+  $config['viostream.settings']['access_key'] = getenv('VIOSTREAM_ACCESS_KEY');
+  $config['viostream.settings']['api_key'] = getenv('VIOSTREAM_API_KEY');
+
+Then set the VIOSTREAM_ACCESS_KEY and VIOSTREAM_API_KEY environment variables
+in your hosting environment. This prevents credentials from appearing in
+version-controlled config exports or database backups.
+
+Alternatively, use the Key module (https://www.drupal.org/project/key) for
+centralised secret management.
+
+
+SECURITY — CONTENT SECURITY POLICY (CSP)
+-----------------------------------------
+If your site enforces a Content-Security-Policy header, you must allow the
+Viostream embed domain in the frame-src directive:
+
+  frame-src https://share.viostream.com;
+
 For more help, see:
  * README.md - Full documentation
  * docs/QUICK_START.md - Quick start guide

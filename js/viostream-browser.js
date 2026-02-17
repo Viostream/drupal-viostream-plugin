@@ -98,7 +98,7 @@
               html += '<span class="viostream-card-status viostream-status-' + escapeAttr(item.status.toLowerCase()) + '">' + escapeHtml(item.status) + '</span>';
             }
             if (typeof item.totalViews !== 'undefined') {
-              html += '<span class="viostream-card-views">' + item.totalViews + ' ' + Drupal.t('views') + '</span>';
+              html += '<span class="viostream-card-views">' + escapeHtml(String(item.totalViews)) + ' ' + Drupal.t('views') + '</span>';
             }
             html += '</div></div></div>';
           });

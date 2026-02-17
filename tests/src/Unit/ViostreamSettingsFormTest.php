@@ -114,10 +114,9 @@ class ViostreamSettingsFormTest extends TestCase {
     $this->assertArrayHasKey('connection_status', $form['connection']);
 
     $this->assertSame('textfield', $form['connection']['access_key']['#type']);
-    $this->assertSame('textfield', $form['connection']['api_key']['#type']);
+    $this->assertSame('password', $form['connection']['api_key']['#type']);
     $this->assertSame('button', $form['connection']['test_connection']['#type']);
     $this->assertTrue($form['connection']['access_key']['#required']);
-    $this->assertTrue($form['connection']['api_key']['#required']);
   }
 
   /**
@@ -170,6 +169,12 @@ class ViostreamSettingsFormTest extends TestCase {
    * @covers ::validateForm
    */
   public function testValidateFormValidAccessKey(): void {
+    $this->config->method('get')
+      ->willReturnMap([
+        ['access_key', 'VC-existing'],
+        ['api_key', 'existing-key'],
+      ]);
+
     $formState = $this->createMock(FormStateInterface::class);
     $formState->method('getValue')
       ->willReturnMap([
@@ -188,6 +193,12 @@ class ViostreamSettingsFormTest extends TestCase {
    * @covers ::validateForm
    */
   public function testValidateFormInvalidAccessKey(): void {
+    $this->config->method('get')
+      ->willReturnMap([
+        ['access_key', 'VC-existing'],
+        ['api_key', 'existing-key'],
+      ]);
+
     $formState = $this->createMock(FormStateInterface::class);
     $formState->method('getValue')
       ->willReturnMap([
@@ -207,6 +218,12 @@ class ViostreamSettingsFormTest extends TestCase {
    * @covers ::validateForm
    */
   public function testValidateFormEmptyAccessKey(): void {
+    $this->config->method('get')
+      ->willReturnMap([
+        ['access_key', ''],
+        ['api_key', 'existing-key'],
+      ]);
+
     $formState = $this->createMock(FormStateInterface::class);
     $formState->method('getValue')
       ->willReturnMap([
@@ -223,9 +240,58 @@ class ViostreamSettingsFormTest extends TestCase {
   }
 
   /**
+   * @covers ::validateForm
+   */
+  public function testValidateFormRequiresApiKeyWhenNoneSaved(): void {
+    $this->config->method('get')
+      ->willReturnMap([
+        ['access_key', ''],
+        ['api_key', ''],
+      ]);
+
+    $formState = $this->createMock(FormStateInterface::class);
+    $formState->method('getValue')
+      ->willReturnMap([
+        ['access_key', NULL, 'VC-test'],
+        ['api_key', NULL, ''],
+      ]);
+
+    $formState->expects($this->once())
+      ->method('setErrorByName')
+      ->with('api_key', $this->anything());
+
+    $form = [];
+    $this->form->validateForm($form, $formState);
+  }
+
+  /**
+   * @covers ::validateForm
+   */
+  public function testValidateFormAllowsEmptyApiKeyWhenAlreadySaved(): void {
+    $this->config->method('get')
+      ->willReturnMap([
+        ['access_key', 'VC-existing'],
+        ['api_key', 'existing-key'],
+      ]);
+
+    $formState = $this->createMock(FormStateInterface::class);
+    $formState->method('getValue')
+      ->willReturnMap([
+        ['access_key', NULL, 'VC-existing'],
+        ['api_key', NULL, ''],
+      ]);
+
+    $formState->expects($this->never())
+      ->method('setErrorByName');
+
+    $form = [];
+    $this->form->validateForm($form, $formState);
+  }
+
+  /**
    * @covers ::submitForm
    */
-  public function testSubmitForm(): void {
+  public function testSubmitFormWithNewApiKey(): void {
     $formState = $this->createMock(FormStateInterface::class);
     $formState->method('getValue')
       ->willReturnMap([
@@ -235,6 +301,31 @@ class ViostreamSettingsFormTest extends TestCase {
 
     $this->config->expects($this->exactly(2))
       ->method('set')
+      ->willReturnSelf();
+
+    $this->config->expects($this->once())
+      ->method('save')
+      ->willReturnSelf();
+
+    $form = [];
+    $this->form->submitForm($form, $formState);
+  }
+
+  /**
+   * @covers ::submitForm
+   */
+  public function testSubmitFormWithEmptyApiKeyKeepsExisting(): void {
+    $formState = $this->createMock(FormStateInterface::class);
+    $formState->method('getValue')
+      ->willReturnMap([
+        ['access_key', NULL, 'VC-new-key'],
+        ['api_key', NULL, ''],
+      ]);
+
+    // Only access_key should be set, not api_key.
+    $this->config->expects($this->once())
+      ->method('set')
+      ->with('access_key', 'VC-new-key')
       ->willReturnSelf();
 
     $this->config->expects($this->once())
@@ -360,7 +451,7 @@ class ViostreamSettingsFormTest extends TestCase {
     $result = $this->form->testConnectionAjax($form, $formState);
 
     $this->assertStringContainsString('messages--error', $result['status']['#markup']);
-    $this->assertStringContainsString('Connection timed out', $result['status']['#markup']);
+    $this->assertStringContainsString('Please check your credentials', $result['status']['#markup']);
   }
 
   /**

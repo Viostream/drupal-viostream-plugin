@@ -190,6 +190,7 @@ class ViostreamVideoFilterTest extends TestCase {
     $this->assertStringContainsString('width="100%"', $output);
     $this->assertStringContainsString('height="100%"', $output);
     $this->assertStringContainsString('allow="autoplay; fullscreen; picture-in-picture"', $output);
+    $this->assertStringContainsString('sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"', $output);
     $this->assertStringContainsString('position:absolute;top:0;left:0;width:100%;height:100%;border:0;', $output);
   }
 
@@ -268,18 +269,17 @@ class ViostreamVideoFilterTest extends TestCase {
    * @covers ::process
    */
   public function testProcessEscapesVideoKeyInUrl(): void {
-    // Test that HTML special chars in the key are escaped.
-    // In the HTML source, &amp; is the entity for &, so data-video-key value
-    // is "abc&def". Html::escape() then re-encodes & as &amp;, and when the
-    // DOM serialises the attribute it encodes that again to &amp;amp;.
+    // Test that special chars in the key are percent-encoded for the URL.
+    // In the HTML source, &amp; is the entity for &, so the DOM-parsed
+    // data-video-key value is "abc&def". rawurlencode() then encodes & as
+    // %26, producing "abc%26def" in the URL path.
     $input = '<viostream-video data-video-key="abc&amp;def" data-video-title="Test"></viostream-video>';
     $result = $this->filter->process($input, 'en');
 
     $output = $result->getProcessedText();
 
-    // The DOM-parsed key is "abc&def", Html::escape produces "abc&amp;def",
-    // and the DOM serialiser encodes the & in the attribute to &amp;amp;def.
-    $this->assertStringContainsString('share.viostream.com/abc', $output);
+    // The DOM-parsed key is "abc&def"; rawurlencode produces "abc%26def".
+    $this->assertStringContainsString('share.viostream.com/abc%26def', $output);
     // Ensure the key was escaped (not left raw with dangerous chars).
     $this->assertStringNotContainsString('<script>', $output);
   }

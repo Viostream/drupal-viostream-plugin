@@ -101,11 +101,26 @@ class ViostreamMediaBrowserController extends ControllerBase {
       return new JsonResponse(['error' => 'API not configured'], 403);
     }
 
+    $page_size = (int) $request->query->get('page_size', 24);
+    $page_size = min(max($page_size, 1), 100);
+
+    $allowed_sort_columns = ['CreatedDate', 'Title'];
+    $sort_column = $request->query->get('sort', 'CreatedDate');
+    if (!in_array($sort_column, $allowed_sort_columns, TRUE)) {
+      $sort_column = 'CreatedDate';
+    }
+
+    $allowed_sort_orders = ['asc', 'desc'];
+    $sort_order = $request->query->get('order', 'desc');
+    if (!in_array($sort_order, $allowed_sort_orders, TRUE)) {
+      $sort_order = 'desc';
+    }
+
     $params = [
-      'PageSize' => (int) $request->query->get('page_size', 24),
+      'PageSize' => $page_size,
       'PageNumber' => (int) $request->query->get('page', 1),
-      'SortColumn' => $request->query->get('sort', 'CreatedDate'),
-      'SortOrder' => $request->query->get('order', 'desc'),
+      'SortColumn' => $sort_column,
+      'SortOrder' => $sort_order,
     ];
 
     $search = $request->query->get('search', '');
@@ -179,7 +194,21 @@ class ViostreamMediaBrowserController extends ControllerBase {
     $result['videoWidth'] = $width;
     $result['videoHeight'] = $height;
 
-    return new JsonResponse($result);
+    // Return only the fields needed by the JavaScript client to avoid
+    // forwarding unexpected or sensitive data from the API response.
+    $response = [
+      'id' => $result['id'] ?? NULL,
+      'key' => $result['key'] ?? NULL,
+      'title' => $result['title'] ?? NULL,
+      'description' => $result['description'] ?? NULL,
+      'thumbnail' => $result['thumbnail'] ?? NULL,
+      'status' => $result['status'] ?? NULL,
+      'duration' => $result['duration'] ?? NULL,
+      'videoWidth' => $result['videoWidth'],
+      'videoHeight' => $result['videoHeight'],
+    ];
+
+    return new JsonResponse($response);
   }
 
 }

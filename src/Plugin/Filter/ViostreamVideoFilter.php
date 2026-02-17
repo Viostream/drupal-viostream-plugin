@@ -58,8 +58,9 @@ class ViostreamVideoFilter extends FilterBase {
         }
       }
 
-      // Build the embed URL.
-      $embed_url = 'https://share.viostream.com/' . Html::escape($video_key);
+      // Build the embed URL. Use rawurlencode() for the URL path component
+      // and Html::escape() for the HTML attribute context where it is rendered.
+      $embed_url = 'https://share.viostream.com/' . rawurlencode($video_key);
 
       // Create a wrapper div with responsive aspect ratio.
       $wrapper = $dom->createElement('div');
@@ -76,6 +77,7 @@ class ViostreamVideoFilter extends FilterBase {
       $iframe->setAttribute('frameborder', '0');
       $iframe->setAttribute('allowfullscreen', 'true');
       $iframe->setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
+      $iframe->setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation allow-popups');
 
       $wrapper->appendChild($iframe);
 

@@ -189,5 +189,24 @@ $httpClient = new class implements \GuzzleHttp\ClientInterface {
 
 $container->set('http_client', $httpClient);
 
+// --- Logger factory stub (for \Drupal::logger()) --------------------------
+$loggerFactory = new class implements \Drupal\Core\Logger\LoggerChannelFactoryInterface {
+
+  public function get($channel): \Psr\Log\LoggerInterface {
+    return new class extends \Psr\Log\AbstractLogger {
+
+      public function log($level, $message, array $context = []): void {
+        // No-op in test stub.
+      }
+
+    };
+  }
+
+  public function addLogger(\Psr\Log\LoggerInterface $logger, $priority = 0): void {}
+
+};
+
+$container->set('logger.factory', $loggerFactory);
+
 // Register the container with Drupal.
 \Drupal::setContainer($container);

@@ -77,11 +77,9 @@ class ViostreamSettingsForm extends ConfigFormBase {
     ];
 
     $form['connection']['api_key'] = [
-      '#type' => 'textfield',
+      '#type' => 'password',
       '#title' => $this->t('API Key'),
-      '#default_value' => $config->get('api_key'),
-      '#description' => $this->t('Your API key generated from <strong>Settings &rarr; Developer Tools</strong> in Viostream. This is used as the password for API authentication.'),
-      '#required' => TRUE,
+      '#description' => $this->t('Your API key generated from <strong>Settings &rarr; Developer Tools</strong> in Viostream. This is used as the password for API authentication. Leave blank to keep the existing value.'),
       '#maxlength' => 255,
     ];
 
@@ -190,12 +188,16 @@ class ViostreamSettingsForm extends ConfigFormBase {
       }
     }
     catch (\Exception $e) {
+      // Log the full exception for debugging, but only show a generic
+      // message to the user to avoid leaking sensitive details (e.g.
+      // internal URLs, credentials, response bodies from Guzzle).
+      \Drupal::logger('viostream')->error('Connection test failed: @message', [
+        '@message' => $e->getMessage(),
+      ]);
       $container['status'] = [
         '#type' => 'markup',
         '#markup' => '<div class="messages messages--error">'
-          . $this->t('Connection failed: @message', [
-            '@message' => $e->getMessage(),
-          ])
+          . $this->t('Connection failed. Please check your credentials and try again. See the site log for details.')
           . '</div>',
       ];
     }
@@ -212,6 +214,13 @@ class ViostreamSettingsForm extends ConfigFormBase {
       $form_state->setErrorByName('access_key', $this->t('The Access Key should start with <code>VC-</code>.'));
     }
 
+    // Require an API key if none has been saved yet.
+    $config = $this->config('viostream.settings');
+    $api_key = $form_state->getValue('api_key');
+    if (empty($api_key) && empty($config->get('api_key'))) {
+      $form_state->setErrorByName('api_key', $this->t('An API Key is required.'));
+    }
+
     parent::validateForm($form, $form_state);
   }
 
@@ -219,10 +228,16 @@ class ViostreamSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $this->config('viostream.settings')
-      ->set('access_key', $form_state->getValue('access_key'))
-      ->set('api_key', $form_state->getValue('api_key'))
-      ->save();
+    $config = $this->config('viostream.settings')
+      ->set('access_key', $form_state->getValue('access_key'));
+
+    // Only update the API key if a new value was entered.
+    $api_key = $form_state->getValue('api_key');
+    if (!empty($api_key)) {
+      $config->set('api_key', $api_key);
+    }
+
+    $config->save();
 
     parent::submitForm($form, $form_state);
   }

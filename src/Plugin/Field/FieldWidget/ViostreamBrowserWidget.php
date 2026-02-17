@@ -130,16 +130,18 @@ class ViostreamBrowserWidget extends WidgetBase implements ContainerFactoryPlugi
     ];
 
     if (!empty($current_value) && !empty($video_title)) {
-      $preview_html = '<span class="viostream-preview-title">' . htmlspecialchars($video_title) . '</span>';
+      $template = '<div class="viostream-preview-content">';
+      $context = [];
       if (!empty($video_thumbnail)) {
-        $preview_html = '<img src="' . htmlspecialchars($video_thumbnail) . '" alt="" class="viostream-preview-thumb" />' . $preview_html;
+        $template .= '<img src="{{ thumbnail }}" alt="" class="viostream-preview-thumb" />';
+        $context['thumbnail'] = $video_thumbnail;
       }
+      $template .= '<span class="viostream-preview-title">{{ title }}</span></div>';
+      $context['title'] = $video_title;
       $element['preview']['content'] = [
         '#type' => 'inline_template',
-        '#template' => '<div class="viostream-preview-content">{{ content|raw }}</div>',
-        '#context' => [
-          'content' => $preview_html,
-        ],
+        '#template' => $template,
+        '#context' => $context,
       ];
     }
     elseif (!empty($current_value)) {
