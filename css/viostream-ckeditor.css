@@ -1,0 +1,80 @@
+/**
+ * @file
+ * Styles for the Viostream video widget inside CKEditor 5.
+ */
+
+/* Widget container in the editor */
+.viostream-ckeditor-widget {
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 16px 0;
+  background: #f8f9fa;
+  max-width: 640px;
+}
+
+.viostream-ckeditor-widget.ck-widget_selected {
+  border-color: #0074bd;
+  box-shadow: 0 0 0 2px rgba(0, 116, 189, 0.3);
+}
+
+.viostream-ckeditor-preview-inner {
+  display: flex;
+  flex-direction: column;
+}
+
+.viostream-ckeditor-thumb {
+  position: relative;
+  background: #1a1a2e;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.viostream-ckeditor-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.viostream-ckeditor-play-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.viostream-ckeditor-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border-top: 1px solid #eee;
+}
+
+.viostream-ckeditor-label {
+  font-size: 0.7em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #0074bd;
+  font-weight: 700;
+}
+
+.viostream-ckeditor-title {
+  font-size: 0.9em;
+  color: #333;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Rendered embed wrapper (from filter output) */
+.viostream-embed-wrapper {
+  margin: 16px 0;
+}
