@@ -1,0 +1,7 @@
+services:
+  viostream.client:
+    class: Drupal\viostream\Client\ViostreamClient
+    arguments:
+      - '@http_client'
+      - '@config.factory'
+      - '@logger.factory'

@@ -1,0 +1,39 @@
+viostream:
+  version: VERSION
+  css:
+    theme:
+      css/viostream.css: {}
+
+media_browser:
+  version: VERSION
+  css:
+    theme:
+      css/viostream-browser.css: {}
+  js:
+    js/viostream-browser.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+
+widget:
+  version: VERSION
+  css:
+    theme:
+      css/viostream-widget.css: {}
+      css/viostream-browser.css: {}
+  js:
+    js/viostream-widget.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+
+ckeditor5:
+  version: VERSION
+  js:
+    js/ckeditor5_plugins/viostreamVideo/build/viostreamVideo.js: { preprocess: false, minified: true }
+  css:
+    theme:
+      css/viostream-ckeditor.css: {}
+      css/viostream-browser.css: {}
+  dependencies:
+    - core/ckeditor5

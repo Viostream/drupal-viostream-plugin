@@ -1,0 +1,100 @@
+{#
+/**
+ * @file
+ * Template for the Viostream media browser page.
+ *
+ * Available variables:
+ * - items: Array of media items from the Viostream API.
+ * - total_items: Total number of media items available.
+ * - total_pages: Total number of pages.
+ * - current_page: Current page number.
+ * - search_url: URL for the AJAX search endpoint.
+ * - detail_url_base: URL template for media detail endpoint.
+ */
+#}
+<div class="viostream-media-browser" data-search-url="{{ search_url }}" data-detail-url="{{ detail_url_base }}">
+
+  {# Search bar #}
+  <div class="viostream-browser-toolbar">
+    <div class="viostream-search-wrapper">
+      <input type="text" class="form-text viostream-search-input" placeholder="{{ 'Search videos...'|t }}" />
+      <button type="button" class="button viostream-search-btn">{{ 'Search'|t }}</button>
+    </div>
+    <div class="viostream-sort-wrapper">
+      <label for="viostream-sort">{{ 'Sort by'|t }}:</label>
+      <select id="viostream-sort" class="form-select viostream-sort-select">
+        <option value="CreatedDate-desc">{{ 'Newest first'|t }}</option>
+        <option value="CreatedDate-asc">{{ 'Oldest first'|t }}</option>
+        <option value="Title-asc">{{ 'Title A-Z'|t }}</option>
+        <option value="Title-desc">{{ 'Title Z-A'|t }}</option>
+      </select>
+    </div>
+  </div>
+
+  {# Status bar #}
+  <div class="viostream-browser-status">
+    <span class="viostream-result-count">
+      {{ 'Showing @count videos'|t({'@count': total_items}) }}
+    </span>
+    <span class="viostream-loading" style="display:none;">{{ 'Loading...'|t }}</span>
+  </div>
+
+  {# Media grid #}
+  <div class="viostream-media-grid">
+    {% if items is empty %}
+      <div class="viostream-empty">
+        {{ 'No videos found. Check your API connection or try a different search.'|t }}
+      </div>
+    {% else %}
+      {% for item in items %}
+        <div class="viostream-media-card"
+             data-media-id="{{ item.id }}"
+             data-media-key="{{ item.key }}"
+             data-media-title="{{ item.title }}">
+          <div class="viostream-card-thumb">
+            {% if item.thumbnail %}
+              <img src="{{ item.thumbnail }}" alt="{{ item.title }}" loading="lazy" />
+            {% else %}
+              <div class="viostream-card-no-thumb">
+                <span>{{ 'No thumbnail'|t }}</span>
+              </div>
+            {% endif %}
+            {% if item.duration %}
+              <span class="viostream-card-duration">{{ item.duration }}</span>
+            {% endif %}
+          </div>
+          <div class="viostream-card-info">
+            <h4 class="viostream-card-title">{{ item.title }}</h4>
+            {% if item.description %}
+              <p class="viostream-card-desc">{{ item.description|length > 80 ? item.description|slice(0, 80) ~ '...' : item.description }}</p>
+            {% endif %}
+            <div class="viostream-card-meta">
+              {% if item.status %}
+                <span class="viostream-card-status viostream-status-{{ item.status|lower }}">{{ item.status }}</span>
+              {% endif %}
+              {% if item.totalViews is defined %}
+                <span class="viostream-card-views">{{ item.totalViews }} {{ 'views'|t }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  {# Pagination #}
+  {% if total_pages > 1 %}
+    <div class="viostream-pagination">
+      <button type="button" class="button viostream-page-prev" {% if current_page <= 1 %}disabled{% endif %}>
+        {{ '&laquo; Previous'|t }}
+      </button>
+      <span class="viostream-page-info">
+        {{ 'Page @current of @total'|t({'@current': current_page, '@total': total_pages}) }}
+      </span>
+      <button type="button" class="button viostream-page-next" {% if current_page >= total_pages %}disabled{% endif %}>
+        {{ 'Next &raquo;'|t }}
+      </button>
+    </div>
+  {% endif %}
+
+</div>

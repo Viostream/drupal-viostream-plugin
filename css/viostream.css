@@ -1,0 +1,39 @@
+/**
+ * @file
+ * Styles for Viostream video player.
+ */
+
+.viostream-video-wrapper {
+  position: relative;
+  margin-bottom: 1em;
+}
+
+.viostream-responsive {
+  position: relative;
+  height: 0;
+  overflow: hidden;
+  /* Default to 16:9 when no aspect-ratio is set. */
+  padding-bottom: 56.25%;
+}
+
+/* When aspect-ratio is set via inline style, disable the padding-bottom hack. */
+.viostream-responsive[style*="aspect-ratio"] {
+  height: auto;
+  padding-bottom: 0;
+  overflow: visible;
+}
+
+.viostream-responsive .viostream-video-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* When using CSS aspect-ratio, the iframe can flow naturally. */
+.viostream-responsive[style*="aspect-ratio"] .viostream-video-iframe {
+  position: static;
+  width: 100%;
+  height: 100%;
+}

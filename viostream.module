@@ -1,0 +1,58 @@
+<?php
+
+/**
+ * @file
+ * Main module file for Viostream.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function viostream_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.viostream':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The Viostream module provides a field formatter to embed Viostream videos in your Drupal/GovCMS website.') . '</p>';
+      $output .= '<h3>' . t('Uses') . '</h3>';
+      $output .= '<dl>';
+      $output .= '<dt>' . t('Embedding Viostream videos') . '</dt>';
+      $output .= '<dd>' . t('Add a Link field to any content type and use the Viostream formatter to embed videos from your Viostream account.') . '</dd>';
+      $output .= '</dl>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function viostream_theme() {
+  return [
+    'viostream_video' => [
+      'variables' => [
+        'video_id' => NULL,
+        'width' => '100%',
+        'height' => '400',
+        'autoplay' => FALSE,
+        'muted' => FALSE,
+        'controls' => TRUE,
+        'responsive' => TRUE,
+        'embed_url' => NULL,
+        'aspect_ratio' => NULL,
+      ],
+      'template' => 'viostream-video',
+    ],
+    'viostream_media_browser' => [
+      'variables' => [
+        'items' => [],
+        'total_items' => 0,
+        'total_pages' => 0,
+        'current_page' => 1,
+        'search_url' => NULL,
+        'detail_url_base' => NULL,
+      ],
+      'template' => 'viostream-media-browser',
+    ],
+  ];
+}

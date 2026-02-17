@@ -1,0 +1,6 @@
+viostream.settings:
+  title: 'Viostream'
+  description: 'Configure Viostream API connection and settings.'
+  route_name: viostream.settings
+  parent: system.admin_config_media
+  weight: 10
