@@ -1,3 +1,14 @@
+viostream.settings:
+  type: config_object
+  label: 'Viostream settings'
+  mapping:
+    access_key:
+      type: string
+      label: 'Access Key'
+    api_key:
+      type: string
+      label: 'API Key'
+
 field.formatter.settings.viostream_video:
   type: mapping
   label: 'Viostream Video formatter settings'
@@ -20,3 +31,7 @@ field.formatter.settings.viostream_video:
     controls:
       type: boolean
       label: 'Show controls'
+
+field.widget.settings.viostream_browser:
+  type: mapping
+  label: 'Viostream Browser widget settings'

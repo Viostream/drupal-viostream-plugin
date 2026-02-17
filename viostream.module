@@ -37,9 +37,22 @@ function viostream_theme() {
         'autoplay' => FALSE,
         'muted' => FALSE,
         'controls' => TRUE,
+        'responsive' => TRUE,
         'embed_url' => NULL,
+        'aspect_ratio' => NULL,
       ],
       'template' => 'viostream-video',
+    ],
+    'viostream_media_browser' => [
+      'variables' => [
+        'items' => [],
+        'total_items' => 0,
+        'total_pages' => 0,
+        'current_page' => 1,
+        'search_url' => NULL,
+        'detail_url_base' => NULL,
+      ],
+      'template' => 'viostream-media-browser',
     ],
   ];
 }
