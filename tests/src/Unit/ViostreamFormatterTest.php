@@ -134,8 +134,8 @@ class ViostreamFormatterTest extends TestCase {
         'not a url at all',
         NULL,
       ],
-      'play.viostream.com (unsupported)' => [
-        'https://play.viostream.com/abc123',
+      'other domain (unsupported)' => [
+        'https://example.com/abc123',
         NULL,
       ],
     ];

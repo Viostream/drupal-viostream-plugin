@@ -197,7 +197,6 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/) format:
 
 ## Important Notes
 
-- All `share.viostream.com` URLs replace the deprecated `play.viostream.com`.
 - LSP "Undefined type" errors for Drupal core classes are expected — the module is developed standalone without Drupal core in the workspace. They are not real errors.
 - PHPUnit deprecation warnings about intersection types in mock declarations are cosmetic (PHPUnit 11.x).
 - The `ViostreamSettingsForm` constructor does NOT call `parent::__construct()` — the `configFactory` property must be injected via reflection in tests.
