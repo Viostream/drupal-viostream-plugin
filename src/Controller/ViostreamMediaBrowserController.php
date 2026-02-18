@@ -48,11 +48,18 @@ class ViostreamMediaBrowserController extends ControllerBase {
    */
   public function browse() {
     if (!$this->viostreamClient->isConfigured()) {
-      $this->messenger()->addError($this->t('Viostream API credentials are not configured. <a href=":url">Configure them here</a>.', [
-        ':url' => Url::fromRoute('viostream.settings')->toString(),
-      ]));
       return [
-        '#markup' => '',
+        '#theme' => 'viostream_media_browser',
+        '#items' => [],
+        '#total_items' => 0,
+        '#total_pages' => 0,
+        '#current_page' => 1,
+        '#search_url' => Url::fromRoute('viostream.media_browser.search')->toString(),
+        '#detail_url_base' => Url::fromRoute('viostream.media_browser.detail', ['media_id' => '__MEDIA_ID__'])->toString(),
+        '#not_configured' => TRUE,
+        '#attached' => [
+          'library' => ['viostream/media_browser'],
+        ],
       ];
     }
 
@@ -133,6 +140,9 @@ class ViostreamMediaBrowserController extends ControllerBase {
     $result = $this->viostreamClient->listMedia($params);
 
     if ($result === NULL) {
+      if ($this->viostreamClient->isAuthError()) {
+        return new JsonResponse(['error' => 'Invalid API credentials'], 403);
+      }
       return new JsonResponse(['error' => 'API request failed'], 500);
     }
 
@@ -170,6 +180,9 @@ class ViostreamMediaBrowserController extends ControllerBase {
     $result = $this->viostreamClient->getMediaDetail($media_id);
 
     if ($result === NULL) {
+      if ($this->viostreamClient->isAuthError()) {
+        return new JsonResponse(['error' => 'Invalid API credentials'], 403);
+      }
       return new JsonResponse(['error' => 'Media not found'], 404);
     }
 

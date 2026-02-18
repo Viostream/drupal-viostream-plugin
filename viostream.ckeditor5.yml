@@ -6,6 +6,7 @@ viostream_video:
   drupal:
     label: Viostream Video
     library: viostream/ckeditor5
+    admin_library: viostream/admin.ckeditor5
     class: \Drupal\viostream\Plugin\CKEditor5Plugin\ViostreamVideo
     toolbar_items:
       viostreamVideo:

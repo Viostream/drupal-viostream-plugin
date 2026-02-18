@@ -21,6 +21,13 @@ class ViostreamClient {
   const API_BASE_URL = 'https://api.app.viostream.com/v3/api';
 
   /**
+   * Whether the last API request failed due to authentication.
+   *
+   * @var bool
+   */
+  protected $lastRequestWasAuthError = FALSE;
+
+  /**
    * The HTTP client.
    *
    * @var \GuzzleHttp\ClientInterface
@@ -85,6 +92,16 @@ class ViostreamClient {
   }
 
   /**
+   * Checks whether the last API request failed due to authentication.
+   *
+   * @return bool
+   *   TRUE if the last request returned a 401 Unauthorized response.
+   */
+  public function isAuthError() {
+    return $this->lastRequestWasAuthError;
+  }
+
+  /**
    * Builds request options with Basic auth headers.
    *
    * @param array $query
@@ -126,22 +143,35 @@ class ViostreamClient {
    *   The decoded JSON response, or NULL on failure.
    */
   protected function get($endpoint, array $query = []) {
+    $this->lastRequestWasAuthError = FALSE;
     try {
       $url = self::API_BASE_URL . $endpoint;
       $options = $this->buildRequestOptions($query);
       $response = $this->httpClient->request('GET', $url, $options);
 
-      if ($response->getStatusCode() === 200) {
+      $status = $response->getStatusCode();
+      if ($status === 200) {
         return json_decode($response->getBody()->getContents(), TRUE);
       }
 
+      if ($status === 401 || $status === 403) {
+        $this->lastRequestWasAuthError = TRUE;
+      }
+
       $this->logger->warning('Viostream API returned status @status for GET @endpoint', [
-        '@status' => $response->getStatusCode(),
+        '@status' => $status,
         '@endpoint' => $endpoint,
       ]);
       return NULL;
     }
     catch (GuzzleException $e) {
+      // Guzzle throws RequestException on 4xx/5xx when http_errors is
+      // enabled (the default). Check if the response was a 401.
+if ($e instanceof \GuzzleHttp\Exception\RequestException
+          && $e->getResponse()
+          && in_array($e->getResponse()->getStatusCode(), [401, 403], TRUE)) {
+        $this->lastRequestWasAuthError = TRUE;
+      }
       $this->logger->error('Viostream API request failed for GET @endpoint: @message', [
         '@endpoint' => $endpoint,
         '@message' => $e->getMessage(),

@@ -156,16 +156,50 @@
       fetch(searchUrl + '?' + params.toString(), {
         headers: { 'Accept': 'application/json' }
       })
-        .then(function (res) { return res.json(); })
+        .then(function (res) {
+          if (!res.ok) {
+            // Try to parse JSON body; fall back to plain object on failure.
+            return res.json()
+              .catch(function () { return {}; })
+              .then(function (data) {
+                throw { status: res.status, data: data };
+              });
+          }
+          return res.json();
+        })
         .then(function (data) {
           loadingEl.style.display = 'none';
           renderResults(data);
         })
         .catch(function (err) {
           loadingEl.style.display = 'none';
-          grid.innerHTML = '<div class="viostream-empty">' + Drupal.t('Error loading videos.') + '</div>';
+          resultCount.textContent = '';
+
+          if (err.status === 403) {
+            showNotConfigured();
+          }
+          else {
+            grid.innerHTML = '<div class="viostream-empty">' + Drupal.t('Error loading videos.') + '</div>';
+          }
           console.error('Viostream error:', err);
         });
+    }
+
+    function showNotConfigured() {
+      // Hide the toolbar and status bar — they are not useful when the
+      // API has not been set up yet.
+      var toolbar = browserEl.querySelector('.viostream-browser-toolbar');
+      var statusBar = browserEl.querySelector('.viostream-browser-status');
+      if (toolbar) toolbar.style.display = 'none';
+      if (statusBar) statusBar.style.display = 'none';
+
+      grid.innerHTML = '<div class="viostream-not-configured">'
+        + '<div class="viostream-not-configured-icon" aria-hidden="true">&#9888;</div>'
+        + '<h3>' + Drupal.t('Viostream API not configured') + '</h3>'
+        + '<p>' + Drupal.t('The Viostream API credentials have not been set up.') + '</p>'
+        + '<p>' + Drupal.t('An administrator needs to configure the API keys at') + ' '
+        + '<strong>' + Drupal.t('Configuration &rarr; Media &rarr; Viostream Settings') + '</strong>.</p>'
+        + '</div>';
     }
 
     function renderResults(data) {

@@ -37,3 +37,9 @@ ckeditor5:
       css/viostream-browser.css: {}
   dependencies:
     - core/ckeditor5
+
+admin.ckeditor5:
+  version: VERSION
+  css:
+    theme:
+      css/ckeditor5-admin.css: {}

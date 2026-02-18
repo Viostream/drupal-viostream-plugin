@@ -26,6 +26,26 @@ docker run --rm -v "$(pwd)":/app -w /app composer:2 install --ignore-platform-re
 
 No linting, static analysis, or CI pipeline is configured. No `composer test` script exists.
 
+---
+
+### Frontend JS Rebuild Workflow
+
+Whenever you make changes to the Viostream CKEditor 5 plugin source JavaScript (`js/ckeditor5_plugins/viostreamVideo/src/`), you **must** re-run the JS build before committing:
+
+```bash
+cd js/ckeditor5_plugins/viostreamVideo
+npm install   # if not already
+npm run build
+```
+
+This regenerates `build/viostreamVideo.js`, which is what Drupal and CKEditor load.
+
+> **Critical:** Docker builds **DO NOT** automatically rebuild the plugin JS. If you do not run the build step, your code/bugfixes will **not** appear in the browser, and you risk committing stale or broken plugin code. Always bundle before commit and verify the change is live!
+
+#### Pre-commit Build Hook (Automatic Safety)
+
+A pre-commit git hook at `.git/hooks/pre-commit` automatically runs the JS build and blocks any commit if `build/viostreamVideo.js` is out of date. If the build changes the bundle, you must `git add js/ckeditor5_plugins/viostreamVideo/build/viostreamVideo.js` and commit again. This guarantees you can never commit stale or mismatched frontend code.
+
 ## Project Layout
 
 ```

@@ -141,30 +141,30 @@ A standalone media browser page is available at **Admin > Content > Browse Viost
 
 The module defines two permissions:
 
-| Permission | Description |
-| --- | --- |
-| **Administer Viostream** | Access the Viostream settings form to configure API credentials |
-| **Browse Viostream media** | Access the media browser to search and select videos |
+| Permission                 | Description                                                     |
+| -------------------------- | --------------------------------------------------------------- |
+| **Administer Viostream**   | Access the Viostream settings form to configure API credentials |
+| **Browse Viostream media** | Access the media browser to search and select videos            |
 
 ## Configuration Options
 
 ### Field Formatter Settings
 
-| Setting | Description | Default |
-| --- | --- | --- |
-| Width | Player width (%, px, or CSS units) | 100% |
-| Height | Player height in pixels | 400 |
-| Responsive | Enable responsive 16:9 aspect ratio | Yes |
-| Autoplay | Auto-start video playback | No |
-| Muted | Mute video by default | No |
-| Show controls | Display player controls | Yes |
+| Setting       | Description                         | Default |
+| ------------- | ----------------------------------- | ------- |
+| Width         | Player width (%, px, or CSS units)  | 100%    |
+| Height        | Player height in pixels             | 400     |
+| Responsive    | Enable responsive 16:9 aspect ratio | Yes     |
+| Autoplay      | Auto-start video playback           | No      |
+| Muted         | Mute video by default               | No      |
+| Show controls | Display player controls             | Yes     |
 
 ### API Configuration
 
-| Setting | Description |
-| --- | --- |
+| Setting    | Description                                   |
+| ---------- | --------------------------------------------- |
 | Access Key | Your Viostream Access Key (starts with `VC-`) |
-| API Key | Your Viostream API Key from Developer Tools |
+| API Key    | Your Viostream API Key from Developer Tools   |
 
 ## Supported URL Formats
 
@@ -336,12 +336,48 @@ phpcs --standard=Drupal modules/contrib/viostream
 
 ### Running Locally
 
+_Make sure you run npm build on the ckeditor5 plugin if you make changes to the
+JS source files._
+
 ```bash
 docker build -t viostream-drupal .
-docker run --rm -p 8080:80 viostream-drupal
+docker run --rm \
+  -v $(pwd)/js/ckeditor5_plugins/viostreamVideo/build:/var/www/html/web/modules/contrib/viostream/js/ckeditor5_plugins/viostreamVideo/build \
+  -v $(pwd)/css:/var/www/html/web/modules/contrib/viostream/css \
+  -p 8080:80 viostream-drupal
 ```
 
 See [docker/README.md](docker/README.md) for detailed Docker setup instructions.
+
+### Building CKEditor 5 Plugin JS
+
+Whenever you edit files in `js/ckeditor5_plugins/viostreamVideo/src/` (the CKEditor plugin source), you **must** re-run the JS build before running or committing your code:
+
+```bash
+cd js/ckeditor5_plugins/viostreamVideo
+npm install   # if not already
+npm run build
+```
+
+This command regenerates `build/viostreamVideo.js` (the actual plugin loaded by Drupal and CKEditor).
+
+> **Important:** Docker image builds **do not** automatically rebuild the plugin JS. If you modify plugin sources but skip this step, your changes (including bugfixes, new features, or error handling improvements) **will not take effect**.
+
+If you ever find that plugin changes don't appear in the editor UI, confirm you have built and committed updated `build/viostreamVideo.js`.
+
+#### Pre-commit Safety Check
+
+A `.git/hooks/pre-commit` script is provided and is enabled by default:
+
+- It always runs `npm run build` in `js/ckeditor5_plugins/viostreamVideo` prior to commit.
+- If the build bundle changes (`build/viostreamVideo.js` modified), your commit is blocked. Run:
+  ```bash
+  git add js/ckeditor5_plugins/viostreamVideo/build/viostreamVideo.js
+  git commit
+  ```
+- This prevents stale frontend bundles from ever being committed.
+
+If you are on Windows or need to re-install the hook, copy or symlink `.git/hooks/pre-commit` from the repository root.
 
 ## Support
 

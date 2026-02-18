@@ -169,6 +169,108 @@ class ViostreamClientTest extends TestCase {
   }
 
   /**
+   * @covers ::isAuthError
+   */
+  public function testIsAuthErrorDefaultsFalse(): void {
+    $this->assertFalse($this->client->isAuthError());
+  }
+
+  /**
+   * @covers ::isAuthError
+   * @covers ::get
+   */
+  public function testIsAuthErrorTrueAfter401Response(): void {
+    $this->setCredentials();
+
+    $response = $this->createMockResponse(401);
+
+    $this->httpClient->expects($this->once())
+      ->method('request')
+      ->willReturn($response);
+
+    $this->client->getAccountInfo();
+    $this->assertTrue($this->client->isAuthError());
+  }
+
+  /**
+   * @covers ::isAuthError
+   * @covers ::get
+   */
+  public function testIsAuthErrorFalseAfterNon401ErrorResponse(): void {
+    $this->setCredentials();
+
+    $response = $this->createMockResponse(500);
+
+    $this->httpClient->expects($this->once())
+      ->method('request')
+      ->willReturn($response);
+
+    $this->client->getAccountInfo();
+    $this->assertFalse($this->client->isAuthError());
+  }
+
+  /**
+   * @covers ::isAuthError
+   * @covers ::get
+   */
+  public function testIsAuthErrorTrueAfter401GuzzleException(): void {
+    $this->setCredentials();
+
+    $request = $this->createMock(RequestInterface::class);
+    $response = $this->createMockResponse(401);
+    $exception = new RequestException('Unauthorized', $request, $response);
+
+    $this->httpClient->expects($this->once())
+      ->method('request')
+      ->willThrowException($exception);
+
+    $this->client->getAccountInfo();
+    $this->assertTrue($this->client->isAuthError());
+  }
+
+  /**
+   * @covers ::isAuthError
+   * @covers ::get
+   */
+  public function testIsAuthErrorFalseAfterNon401GuzzleException(): void {
+    $this->setCredentials();
+
+    $request = $this->createMock(RequestInterface::class);
+    $exception = new RequestException('Connection failed', $request);
+
+    $this->httpClient->expects($this->once())
+      ->method('request')
+      ->willThrowException($exception);
+
+    $this->client->getAccountInfo();
+    $this->assertFalse($this->client->isAuthError());
+  }
+
+  /**
+   * @covers ::isAuthError
+   * @covers ::get
+   */
+  public function testIsAuthErrorResetsOnSubsequentRequest(): void {
+    $this->setCredentials();
+
+    // First request returns 401.
+    $response401 = $this->createMockResponse(401);
+    $expected = ['id' => 'uuid-123'];
+    $response200 = $this->createMockResponse(200, $expected);
+
+    $this->httpClient->expects($this->exactly(2))
+      ->method('request')
+      ->willReturnOnConsecutiveCalls($response401, $response200);
+
+    $this->client->getAccountInfo();
+    $this->assertTrue($this->client->isAuthError());
+
+    // Second request succeeds — flag should reset.
+    $this->client->getAccountInfo();
+    $this->assertFalse($this->client->isAuthError());
+  }
+
+  /**
    * @covers ::getAccountInfo
    * @covers ::get
    * @covers ::buildRequestOptions

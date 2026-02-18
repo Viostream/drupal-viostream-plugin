@@ -138,6 +138,7 @@ class ViostreamMediaBrowserControllerTest extends TestCase {
   public function testSearchApiFails(): void {
     $this->viostreamClient->method('isConfigured')->willReturn(TRUE);
     $this->viostreamClient->method('listMedia')->willReturn(NULL);
+    $this->viostreamClient->method('isAuthError')->willReturn(FALSE);
 
     $request = new Request();
     $response = $this->controller->search($request);
@@ -145,6 +146,22 @@ class ViostreamMediaBrowserControllerTest extends TestCase {
     $this->assertSame(500, $response->getStatusCode());
     $data = json_decode($response->getContent(), TRUE);
     $this->assertSame('API request failed', $data['error']);
+  }
+
+  /**
+   * @covers ::search
+   */
+  public function testSearchApiAuthError(): void {
+    $this->viostreamClient->method('isConfigured')->willReturn(TRUE);
+    $this->viostreamClient->method('listMedia')->willReturn(NULL);
+    $this->viostreamClient->method('isAuthError')->willReturn(TRUE);
+
+    $request = new Request();
+    $response = $this->controller->search($request);
+
+    $this->assertSame(403, $response->getStatusCode());
+    $data = json_decode($response->getContent(), TRUE);
+    $this->assertSame('Invalid API credentials', $data['error']);
   }
 
   /**
@@ -254,12 +271,28 @@ class ViostreamMediaBrowserControllerTest extends TestCase {
   public function testDetailMediaNotFound(): void {
     $this->viostreamClient->method('isConfigured')->willReturn(TRUE);
     $this->viostreamClient->method('getMediaDetail')->willReturn(NULL);
+    $this->viostreamClient->method('isAuthError')->willReturn(FALSE);
 
     $response = $this->controller->detail('nonexistent');
 
     $this->assertSame(404, $response->getStatusCode());
     $data = json_decode($response->getContent(), TRUE);
     $this->assertSame('Media not found', $data['error']);
+  }
+
+  /**
+   * @covers ::detail
+   */
+  public function testDetailApiAuthError(): void {
+    $this->viostreamClient->method('isConfigured')->willReturn(TRUE);
+    $this->viostreamClient->method('getMediaDetail')->willReturn(NULL);
+    $this->viostreamClient->method('isAuthError')->willReturn(TRUE);
+
+    $response = $this->controller->detail('media-123');
+
+    $this->assertSame(403, $response->getStatusCode());
+    $data = json_decode($response->getContent(), TRUE);
+    $this->assertSame('Invalid API credentials', $data['error']);
   }
 
   /**
@@ -513,7 +546,8 @@ class ViostreamMediaBrowserControllerTest extends TestCase {
     $result = $this->controller->browse();
 
     $this->assertIsArray($result);
-    $this->assertSame('', $result['#markup']);
+    $this->assertTrue($result['#not_configured']);
+    $this->assertSame('viostream_media_browser', $result['#theme']);
   }
 
   /**
