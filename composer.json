@@ -1,5 +1,5 @@
 {
-  "name": "viostream/govcms-viostream-plugin",
+  "name": "viostream/drupal-viostream-plugin",
   "type": "drupal-module",
   "description": "Provides a field formatter to embed Viostream videos in Drupal/GovCMS websites.",
   "keywords": ["drupal", "govcms", "viostream", "video", "media", "embed"],

@@ -175,4 +175,4 @@ Override the template:
 
 - [Full Documentation](../README.md)
 - [Report Issues](https://github.com/Viostream/govcms-viostream-plugin/issues)
-- [Viostream API](https://api.app.viostream.com/swagger/index.html)
+- [Viostream API](https://help.viostream.com/api/viostream-api)

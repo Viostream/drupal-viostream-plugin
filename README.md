@@ -35,7 +35,7 @@ The Viostream module connects your Drupal site to the Viostream platform via its
 ### Using Composer (Recommended)
 
 ```bash
-composer require viostream/govcms-viostream-plugin
+composer require viostream/drupal-viostream-plugin
 ```
 
 ### Manual Installation
@@ -384,7 +384,7 @@ If you are on Windows or need to re-install the hook, copy or symlink `.git/hook
 For issues, questions, or contributions:
 
 - GitHub Issues: https://github.com/Viostream/govcms-viostream-plugin/issues
-- Viostream API Documentation: https://api.app.viostream.com/swagger/index.html
+- Viostream API Documentation: https://help.viostream.com/api/viostream-api
 
 ## License
 
@@ -398,4 +398,4 @@ Developed for seamless integration of Viostream videos with Drupal and GovCMS.
 
 - [Drupal Documentation](https://www.drupal.org/documentation)
 - [GovCMS](https://github.com/govCMS/govCMS)
-- [Viostream API](https://api.app.viostream.com/swagger/index.html)
+- [Viostream API](https://help.viostream.com/api/viostream-api)

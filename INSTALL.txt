@@ -38,7 +38,7 @@ INSTALLATION
 ------------
 1. Install the module using Composer (recommended):
    
-   composer require viostream/govcms-viostream-plugin
+   composer require viostream/drupal-viostream-plugin
 
    Or download and place the module in your modules directory:
    /modules/contrib/viostream

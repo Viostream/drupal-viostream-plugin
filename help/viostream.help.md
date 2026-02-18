@@ -162,7 +162,7 @@ If the video doesn't look right:
 
 ## Additional Resources
 
-- [Viostream API Documentation](https://api.app.viostream.com/swagger/index.html)
+- [Viostream API Documentation](https://help.viostream.com/api/viostream-api)
 - [Drupal Field API](https://www.drupal.org/docs/drupal-apis/entity-api/fields)
 - [Module Issue Queue](https://github.com/Viostream/govcms-viostream-plugin/issues)
 
