@@ -1,0 +1,19 @@
+# CKEditor 5 plugin definition for Viostream video embedding.
+viostream_video:
+  ckeditor5:
+    plugins:
+      - viostreamVideo.ViostreamVideo
+  drupal:
+    label: Viostream Video
+    library: viostream/ckeditor5
+    admin_library: viostream/admin.ckeditor5
+    class: \Drupal\viostream\Plugin\CKEditor5Plugin\ViostreamVideo
+    toolbar_items:
+      viostreamVideo:
+        label: Viostream Video
+        icon: viostreamVideo
+    elements:
+      - <viostream-video>
+      - <viostream-video data-video-key data-video-title data-video-width data-video-height>
+    conditions:
+      filter: viostream_video

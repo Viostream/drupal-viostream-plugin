@@ -1,0 +1,12 @@
+.git
+.gitignore
+*.md
+docs/
+examples/
+.vscode/
+.idea/
+*.log
+.env
+node_modules/
+vendor/
+docker/README.md

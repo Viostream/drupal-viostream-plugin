@@ -1,0 +1,161 @@
+VIOSTREAM MODULE
+================
+
+CONTENTS OF THIS FILE
+---------------------
+ * Introduction
+ * Requirements
+ * Installation
+ * Configuration
+ * Usage
+ * Troubleshooting
+ * Maintainers
+
+
+INTRODUCTION
+------------
+The Viostream module provides a field formatter to embed Viostream videos
+directly into your Drupal or GovCMS website. It works with standard Drupal Link
+and Text fields, making it easy to add video content from your Viostream account.
+
+Key features:
+ * Works with Link, String, and String Long field types
+ * Customizable player dimensions and behavior
+ * Responsive video player with 16:9 aspect ratio option
+ * Support for multiple Viostream URL formats
+ * Configurable autoplay, mute, and control options
+
+
+REQUIREMENTS
+------------
+This module requires:
+ * Drupal 10 or 11
+ * Field module (Drupal core)
+ * Link module (Drupal core)
+
+
+INSTALLATION
+------------
+1. Install the module using Composer (recommended):
+   
+   composer require viostream/govcms-viostream-plugin
+
+   Or download and place the module in your modules directory:
+   /modules/contrib/viostream
+
+2. Enable the module:
+   
+   Via Drush:
+   drush en viostream
+   
+   Or via the Drupal admin interface:
+   Admin → Extend → Enable "Viostream"
+
+3. Clear caches:
+   
+   drush cr
+
+
+CONFIGURATION
+-------------
+The module works with existing Drupal fields, no global configuration needed.
+
+To use the formatter:
+
+1. Add a Link field to any content type:
+   Admin → Structure → Content types → [Type] → Manage fields
+   
+2. Configure the display to use "Viostream Video" formatter:
+   Admin → Structure → Content types → [Type] → Manage display
+   
+3. Click the settings icon to configure player options:
+   - Width: Player width (e.g., 100%, 640px)
+   - Height: Player height (e.g., 400)
+   - Responsive: Enable for 16:9 aspect ratio
+   - Autoplay: Auto-start video playback
+   - Muted: Mute video by default
+   - Show controls: Display player controls
+
+
+USAGE
+-----
+After configuration, add videos to your content:
+
+Option A: CKEditor 5 (recommended)
+1. Enable the 'Viostream Video Embed' filter on a text format
+2. Drag the Viostream Video button into the CKEditor toolbar
+3. Edit content, click the Viostream button, browse and select a video
+
+Option B: Field widget
+1. Create or edit content with a Viostream Browser widget field
+2. Click 'Browse Viostream' to search and select a video
+3. Save and view your content
+
+The video will be embedded using your configured settings.
+
+
+TROUBLESHOOTING
+---------------
+Problem: Video doesn't display
+Solution: 
+  - Verify the video ID is correct
+  - Ensure the video is publicly accessible
+  - Check formatter is set to "Viostream Video"
+  - Clear Drupal cache
+
+Problem: Player controls don't work
+Solution:
+  - Enable "Show controls" in formatter settings
+  - Check browser console for errors
+  - Test in different browser
+
+Problem: Autoplay doesn't work
+Solution:
+  - Enable both "Autoplay" and "Muted" (required by browsers)
+  - Check browser autoplay policies
+
+
+SECURITY — PRODUCTION CREDENTIAL MANAGEMENT
+--------------------------------------------
+By default, API credentials are stored in Drupal's configuration system. This
+means they will appear in config exports (drush config:export) and database
+dumps. For production environments — especially GovCMS — you should override
+credentials via environment variables rather than storing them in exportable
+config.
+
+Add the following to your settings.php (or settings.local.php):
+
+  $config['viostream.settings']['access_key'] = getenv('VIOSTREAM_ACCESS_KEY');
+  $config['viostream.settings']['api_key'] = getenv('VIOSTREAM_API_KEY');
+
+Then set the VIOSTREAM_ACCESS_KEY and VIOSTREAM_API_KEY environment variables
+in your hosting environment. This prevents credentials from appearing in
+version-controlled config exports or database backups.
+
+Alternatively, use the Key module (https://www.drupal.org/project/key) for
+centralised secret management.
+
+
+SECURITY — CONTENT SECURITY POLICY (CSP)
+-----------------------------------------
+If your site enforces a Content-Security-Policy header, you must allow the
+Viostream embed domain in the frame-src directive:
+
+  frame-src https://share.viostream.com;
+
+For more help, see:
+ * README.md - Full documentation
+ * docs/QUICK_START.md - Quick start guide
+ * help/viostream.help.md - Drupal help documentation
+
+
+MAINTAINERS
+-----------
+Current maintainers:
+ * Viostream - https://www.viostream.com
+
+This project is sponsored by:
+ * Viostream - https://www.viostream.com
+
+For issues and support:
+ * GitHub: https://github.com/Viostream/govcms-viostream-plugin/issues

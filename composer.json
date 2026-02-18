@@ -1,0 +1,40 @@
+{
+  "name": "viostream/govcms-viostream-plugin",
+  "type": "drupal-module",
+  "description": "Provides a field formatter to embed Viostream videos in Drupal/GovCMS websites.",
+  "keywords": ["drupal", "govcms", "viostream", "video", "media", "embed"],
+  "homepage": "https://github.com/Viostream/govcms-viostream-plugin",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Viostream",
+      "homepage": "https://www.viostream.com"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/Viostream/govcms-viostream-plugin/issues",
+    "source": "https://github.com/Viostream/govcms-viostream-plugin"
+  },
+  "require": {
+    "php": ">=8.1",
+    "drupal/core": "^10 || ^11"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.5 || ^11.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Drupal\\viostream\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Drupal\\Tests\\viostream\\": "tests/src/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "drupal/core-composer-scaffold": false
+    }
+  }
+}

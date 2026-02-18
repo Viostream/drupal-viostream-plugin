@@ -1,0 +1,11 @@
+/**
+ * @file
+ * Styles for CKEditor 5 toolbar admin UI.
+ */
+
+.ckeditor5-toolbar-button-viostreamVideo {
+  background-image: url(../icons/viostreamVideo.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 20px 20px;
+}

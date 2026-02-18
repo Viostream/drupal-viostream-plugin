@@ -1,0 +1,34 @@
+viostream.settings:
+  path: '/admin/config/media/viostream'
+  defaults:
+    _form: '\Drupal\viostream\Form\ViostreamSettingsForm'
+    _title: 'Viostream Settings'
+  requirements:
+    _permission: 'administer viostream'
+
+viostream.media_browser:
+  path: '/admin/content/viostream/browser'
+  defaults:
+    _controller: '\Drupal\viostream\Controller\ViostreamMediaBrowserController::browse'
+    _title: 'Viostream Media Browser'
+  requirements:
+    _permission: 'browse viostream media'
+
+viostream.media_browser.search:
+  path: '/admin/content/viostream/browser/search'
+  defaults:
+    _controller: '\Drupal\viostream\Controller\ViostreamMediaBrowserController::search'
+  requirements:
+    _permission: 'browse viostream media'
+  options:
+    no_cache: TRUE
+
+viostream.media_browser.detail:
+  path: '/admin/content/viostream/browser/detail/{media_id}'
+  defaults:
+    _controller: '\Drupal\viostream\Controller\ViostreamMediaBrowserController::detail'
+  requirements:
+    _permission: 'browse viostream media'
+    media_id: '[a-zA-Z0-9_-]+'
+  options:
+    no_cache: TRUE

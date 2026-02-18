@@ -1,0 +1,46 @@
+{#
+/**
+ * @file
+ * Default theme implementation for Viostream video player.
+ *
+ * Available variables:
+ * - video_id: The Viostream video ID.
+ * - embed_url: The full embed URL with parameters.
+ * - width: The width of the video player.
+ * - height: The height of the video player.
+ * - autoplay: Whether to autoplay the video.
+ * - muted: Whether the video is muted.
+ * - controls: Whether to show player controls.
+ * - responsive: Whether to make the player responsive.
+ * - aspect_ratio: CSS aspect-ratio value (e.g. "16 / 9"), or null.
+ *
+ * @ingroup themeable
+ */
+#}
+{% if responsive %}
+<div class="viostream-video-wrapper viostream-responsive"{% if aspect_ratio %} style="aspect-ratio: {{ aspect_ratio }};"{% endif %}>
+  <iframe
+    src="{{ embed_url }}"
+    class="viostream-video-iframe"
+    frameborder="0"
+    allowfullscreen
+    allow="autoplay; fullscreen; picture-in-picture"
+    sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+    title="{{ 'Viostream video player'|t }}"
+  ></iframe>
+</div>
+{% else %}
+<div class="viostream-video-wrapper">
+  <iframe
+    src="{{ embed_url }}"
+    width="{{ width }}"
+    height="{{ height }}"
+    class="viostream-video-iframe"
+    frameborder="0"
+    allowfullscreen
+    allow="autoplay; fullscreen; picture-in-picture"
+    sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+    title="{{ 'Viostream video player'|t }}"
+  ></iframe>
+</div>
+{% endif %}

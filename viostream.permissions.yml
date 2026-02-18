@@ -1,0 +1,8 @@
+administer viostream:
+  title: 'Administer Viostream'
+  description: 'Configure Viostream API credentials and module settings.'
+  restrict access: true
+
+browse viostream media:
+  title: 'Browse Viostream media'
+  description: 'Search and browse media items from the connected Viostream account.'
