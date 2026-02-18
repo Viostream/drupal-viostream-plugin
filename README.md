@@ -1,5 +1,14 @@
 # Viostream for Drupal/GovCMS
 
+[![Build Status](https://github.com/Viostream/govcms-viostream-plugin/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Viostream/govcms-viostream-plugin/actions)
+[![Coverage Status](https://codecov.io/gh/Viostream/drupal-viostream-plugin/branch/main/graph/badge.svg)](https://codecov.io/gh/Viostream/drupal-viostream-plugin)
+[![Packagist](https://img.shields.io/packagist/v/viostream/drupal-viostream-plugin)](https://packagist.org/packages/viostream/drupal-viostream-plugin)
+[![Packagist Downloads](https://img.shields.io/packagist/dt/viostream/drupal-viostream-plugin)](https://packagist.org/packages/viostream/drupal-viostream-plugin)
+[![PHP Version](https://img.shields.io/packagist/php-v/viostream/drupal-viostream-plugin)](https://packagist.org/packages/viostream/drupal-viostream-plugin)
+[![License](https://img.shields.io/packagist/l/viostream/drupal-viostream-plugin)](LICENSE)
+[![Issues](https://img.shields.io/github/issues/Viostream/drupal-viostream-plugin)](https://github.com/Viostream/drupal-viostream-plugin/issues)
+[![Last Commit](https://img.shields.io/github/last-commit/Viostream/drupal-viostream-plugin?logo=github)](https://github.com/Viostream/drupal-viostream-plugin/commits/main)
+
 A Drupal module that integrates with the Viostream API to let you browse, search, and embed Viostream videos in your Drupal or GovCMS website.
 
 ## Description
