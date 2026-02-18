@@ -17,6 +17,7 @@ export default class ViostreamVideoUI extends Plugin {
   init() {
     const editor = this.editor;
 
+    
     editor.ui.componentFactory.add('viostreamVideo', (locale) => {
       const button = new ButtonView(locale);
 
@@ -27,7 +28,7 @@ export default class ViostreamVideoUI extends Plugin {
       });
 
       button.on('execute', () => {
-        this._openBrowser();
+                this._openBrowser();
       });
 
       // Bind enabled state to command (guard for admin toolbar config page
@@ -45,15 +46,15 @@ export default class ViostreamVideoUI extends Plugin {
    * Opens the Viostream media browser modal.
    */
   _openBrowser() {
-    const editor = this.editor;
+        const editor = this.editor;
     const config = editor.config.get('viostreamVideo') || {};
-    const searchUrl = config.searchUrl || '';
+        const searchUrl = config.searchUrl || '';
     const detailUrlBase = config.detailUrlBase || '';
 
     if (!searchUrl) {
       // eslint-disable-next-line no-alert
       alert('Viostream API is not configured. Please configure it in admin settings.');
-      return;
+            return;
     }
 
     // Create modal overlay.
@@ -181,15 +182,14 @@ export default class ViostreamVideoUI extends Plugin {
           insertVideo(data.videoWidth || null, data.videoHeight || null);
         })
         .catch((err) => {
-          console.warn('Viostream: could not fetch video dimensions:', err);
-          // Insert anyway without dimensions.
+                    // Insert anyway without dimensions.
           insertVideo(null, null);
         });
     });
 
     // Search logic.
     const doSearch = (page) => {
-      currentPage = page || 1;
+            currentPage = page || 1;
       const sortVal = sortSelect.value.split('-');
       const params = new URLSearchParams({
         search: searchInput.value,
@@ -206,16 +206,39 @@ export default class ViostreamVideoUI extends Plugin {
       fetch(searchUrl + '?' + params.toString(), {
         headers: { Accept: 'application/json' },
       })
-        .then((res) => res.json())
-        .then((data) => {
-          loadingEl.style.display = 'none';
+        .then(async (res) => {
+          let data;
+          try {
+            data = await res.json();
+          } catch (e) {
+            data = {};
+                      }
+
+                    loadingEl.style.display = 'none';
+
+          if (!res.ok && res.status === 403) {
+                        grid.innerHTML =
+              '<div class="viostream-not-configured">'
+                + '<div class="viostream-not-configured-icon" aria-hidden="true">&#9888;</div>'
+                + '<h3>Viostream API not configured</h3>'
+                + '<p>The Viostream API credentials have not been set up.</p>'
+                + '<p>An administrator needs to configure the API keys at '
+                + '<strong>Configuration &rarr; Media &rarr; Viostream Settings</strong>.</p>'
+                + '</div>';
+            return;
+          } else if (!res.ok) {
+                        grid.innerHTML = '<div class="viostream-empty">Error loading videos.</div>';
+            console.error('Viostream error:', data.error || res.statusText);
+            return;
+          }
+          console.log('[Viostream Debug] Render video results:', data);
           renderResults(data);
         })
         .catch((err) => {
           loadingEl.style.display = 'none';
           grid.innerHTML =
             '<div class="viostream-empty">Error loading videos.</div>';
-          console.error('Viostream error:', err);
+          console.error('[Viostream Debug] Network or JS error:', err);
         });
     };
 
@@ -247,20 +270,13 @@ export default class ViostreamVideoUI extends Plugin {
           }
           if (item.duration) {
             html +=
-              '<span class="viostream-card-duration">' + _escapeHtml(item.duration) + '</span>';
+              '<span class="viostream-card-duration">' + _escapeHtml(_formatDuration(item.duration)) + '</span>';
           }
           html += '</div>';
           html += '<div class="viostream-card-info">';
           html +=
             '<h4 class="viostream-card-title">' + _escapeHtml(item.title || '') + '</h4>';
-          if (item.description) {
-            const desc =
-              item.description.length > 80
-                ? item.description.substring(0, 80) + '...'
-                : item.description;
-            html +=
-              '<p class="viostream-card-desc">' + _escapeHtml(desc) + '</p>';
-          }
+
           html += '</div></div>';
         });
       }
@@ -328,6 +344,23 @@ export default class ViostreamVideoUI extends Plugin {
     // Initial load.
     doSearch(1);
   }
+}
+
+/**
+ * Formats duration given in seconds (float or string) as mm:ss or h:mm:ss with integer seconds.
+ */
+function _formatDuration(val) {
+  let seconds = parseFloat(val);
+  if (isNaN(seconds) || seconds < 0) return '';
+  seconds = Math.round(seconds);
+  const s = seconds % 60;
+  const m = Math.floor(seconds / 60) % 60;
+  const h = Math.floor(seconds / 3600);
+  const pad = (n) => n.toString().padStart(2, '0');
+  if (h > 0) {
+    return `${h}:${pad(m)}:${pad(s)}`;
+  }
+  return `${m}:${pad(s)}`;
 }
 
 /**
