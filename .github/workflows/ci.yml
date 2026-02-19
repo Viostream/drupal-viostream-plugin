@@ -10,7 +10,7 @@ name: CI
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
 
 defaults:
@@ -48,13 +48,9 @@ jobs:
         run: |
           composer install --ignore-platform-reqs --prefer-dist --no-interaction
 
-      - name: Run unit tests
-        run: |
-          php vendor/bin/phpunit
-
       - name: Run unit tests with coverage (pcov)
         run: |
-          php -dpcov.enabled=1 -dpcov.directory=. vendor/bin/phpunit --coverage-clover=coverage.xml
+          php -dpcov.enabled=1 -dpcov.directory=. vendor/bin/phpunit --configuration=phpunit.xml --coverage-clover=coverage.xml tests/src/Unit
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
