@@ -1,0 +1,19 @@
+{
+  "name": "viostream/drupal-viostream-plugin",
+  "version": "1.0.0",
+  "private": false,
+  "description": "Drupal module providing Viostream video integration (field formatter, widget, CKEditor 5, media browser, API client, text filter)",
+  "type": "drupal-module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Viostream/drupal-viostream-plugin"
+  },
+  "license": "GPL-2.0-or-later",
+  "scripts": {},
+  "devDependencies": {
+    "semantic-release": "^23.0.0",
+    "@semantic-release/changelog": "^6.0.2",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^9.0.4"
+  }
+}
