@@ -20,8 +20,8 @@ yarn-error.log
 /dist/
 
 # Testing
+coverage.xml
 /coverage/
-phpunit.xml
 .phpunit.cache/
 .phpunit.result.cache
 
